@@ -1,6 +1,6 @@
 module github.com/ygo-skc/skc-deck-api
 
-go 1.21.5
+go 1.21
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
