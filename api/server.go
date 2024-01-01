@@ -19,7 +19,8 @@ const (
 )
 
 var (
-	skcSuggestionEngineDBInterface db.SKCSuggestionEngineDAO = db.SKCSuggestionEngineDAOImplementation{}
+	skcDBInterface                 db.SKCDatabaseAccessObject = db.SKCDAOImplementation{}
+	skcSuggestionEngineDBInterface db.SKCSuggestionEngineDAO  = db.SKCSuggestionEngineDAOImplementation{}
 	router                         *mux.Router
 	corsOpts                       *cors.Cors
 	serverAPIKey                   string
