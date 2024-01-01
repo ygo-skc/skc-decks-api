@@ -1,5 +1,7 @@
 # skc-deck-api
 
+[![Unit Test](https://github.com/ygo-skc/skc-deck-api/actions/workflows/unit-test.yaml/badge.svg?branch=release)](https://github.com/ygo-skc/skc-deck-api/actions/workflows/unit-test.yaml) [![CodeQL](https://github.com/ygo-skc/skc-deck-api/actions/workflows/codeql.yml/badge.svg?branch=release)](https://github.com/ygo-skc/skc-deck-api/actions/workflows/codeql.yml)
+
 ## Info
 
 Go API that provides various functionality related to Yugioh deck building and deck lists. Below are some of the functionalities:
