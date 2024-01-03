@@ -10,7 +10,7 @@ import (
 var EnvMap map[string]string
 
 const (
-	ENV_VARIABLE_NAME string = "SKC_SUGGESTION_ENGINE_DOT_ENV_FILE"
+	ENV_VARIABLE_NAME string = "SKC_DECK_API_DOT_ENV_FILE"
 )
 
 func SetupEnv() {
