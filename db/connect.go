@@ -2,12 +2,10 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/ygo-skc/skc-deck-api/util"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,20 +14,6 @@ const (
 	minPoolSize = 20
 	maxPoolSize = 40
 )
-
-// Connect to SKC database.
-func EstablishDBConn() {
-	uri := "%s:%s@tcp(%s)/%s"
-	dataSourceName := fmt.Sprintf(uri, util.EnvMap["SKC_DB_USER"], util.EnvMap["SKC_DB_PWD"], util.EnvMap["SKC_DB_URI"], util.EnvMap["SKC_DB_NAME"])
-
-	var err error
-	if skcDBConn, err = sql.Open("mysql", dataSourceName); err != nil {
-		log.Fatalln("Error occurred while trying to establish DB connection: ", err)
-	}
-
-	skcDBConn.SetMaxIdleConns(minPoolSize)
-	skcDBConn.SetMaxOpenConns(maxPoolSize)
-}
 
 func EstablishSKCSuggestionEngineDBConn() {
 	certificateKeyFilePath := "./certs/skc-suggestion-engine-db.pem"

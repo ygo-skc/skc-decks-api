@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ygo-skc/skc-deck-api/db"
+	"github.com/ygo-skc/skc-deck-api/downstream"
 	"github.com/ygo-skc/skc-deck-api/model"
 )
 
@@ -14,7 +14,7 @@ var (
 	deckListCardAndQuantityRegex = regexp.MustCompile("[1-3][xX][0-9]{8}")
 )
 
-func DeserializeDeckList(dl string, skcDBInterface db.SKCDatabaseAccessObject) (*model.DeckListBreakdown, *model.APIError) {
+func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) {
 	var dlb model.DeckListBreakdown
 	var err *model.APIError
 
@@ -23,8 +23,8 @@ func DeserializeDeckList(dl string, skcDBInterface db.SKCDatabaseAccessObject) (
 	}
 
 	var allCards model.CardDataMap
-	if allCards, err = skcDBInterface.FindDesiredCardInDBUsingMultipleCardIDs(dlb.CardIDs); err != nil {
-		return nil, &model.APIError{Message: "Could not access DB"}
+	if allCards, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
+		return nil, &model.APIError{Message: "Error fetching data"}
 	}
 
 	dlb.AllCards = allCards

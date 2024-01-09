@@ -34,7 +34,7 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	decodedList := string(decodedListBytes) // decoded string of list contents
 
 	var deckListBreakdown model.DeckListBreakdown
-	if dlb, err := serialization.DeserializeDeckList(decodedList, skcDBInterface); err != nil {
+	if dlb, err := serialization.DeserializeDeckList(decodedList); err != nil {
 		if err.Message == "Could not transform to map" {
 			res.WriteHeader(http.StatusUnprocessableEntity)
 			json.NewEncoder(res).Encode(err)
