@@ -59,6 +59,6 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	deckList.UniqueCards = deckListBreakdown.CardIDs
 	deckList.NumMainDeckCards = deckListBreakdown.NumMainDeckCards
 	deckList.NumExtraDeckCards = deckListBreakdown.NumExtraDeckCards
-	skcSuggestionEngineDBInterface.InsertDeckList(deckList)
+	skcDeckAPIDBInterface.InsertDeckList(deckList)
 	json.NewEncoder(res).Encode(model.Success{Message: "Successfully inserted new deck list: " + deckList.Name})
 }

@@ -15,9 +15,9 @@ const (
 	maxPoolSize = 40
 )
 
-func EstablishSKCSuggestionEngineDBConn() {
-	certificateKeyFilePath := "./certs/skc-suggestion-engine-db.pem"
-	uri := "mongodb+srv://skc-suggestion-engine-e.rfait.mongodb.net/?tlsCertificateKeyFile=%s"
+func EstablishSKCDeckAPIDBConn() {
+	certificateKeyFilePath := "./certs/skc-deck-api-db.pem"
+	uri := "mongodb+srv://skc-deck-api-east1.twjikpk.mongodb.net/?tlsCertificateKeyFile=%s"
 	uri = fmt.Sprintf(uri, certificateKeyFilePath)
 
 	credential := options.Credential{
@@ -25,12 +25,12 @@ func EstablishSKCSuggestionEngineDBConn() {
 	}
 
 	if client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri).SetAuth(credential).SetMinPoolSize(minPoolSize).SetMaxPoolSize(maxPoolSize).SetMaxConnIdleTime(10*time.Minute).
-		SetAppName("SKC Suggestion Engine")); err != nil {
-		log.Fatalln("Error creating new mongodb client for skc-suggestion-engine DB", err)
+		SetAppName("SKC Deck API")); err != nil {
+		log.Fatalln("Error creating new mongodb client for skc-deck-api-db", err)
 	} else {
-		skcSuggestionDB = client.Database("suggestionDB")
+		skcDeckDB = client.Database("deckDB")
 	}
 
 	// init collections
-	deckListCollection = skcSuggestionDB.Collection("deckLists")
+	deckListCollection = skcDeckDB.Collection("lists")
 }

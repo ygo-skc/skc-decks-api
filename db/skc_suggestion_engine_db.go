@@ -14,13 +14,13 @@ import (
 )
 
 var (
-	skcSuggestionDB    *mongo.Database
+	skcDeckDB          *mongo.Database
 	deckListCollection *mongo.Collection
 )
 
 // interface
-type SKCSuggestionEngineDAO interface {
-	GetSKCSuggestionDBVersion() (string, error)
+type SKCDeckAPIDAO interface {
+	GetSKCDeckAPIDBVersion() (string, error)
 
 	InsertDeckList(deckList model.DeckList)
 	GetDeckList(deckID string) (*model.DeckList, *model.APIError)
@@ -28,25 +28,25 @@ type SKCSuggestionEngineDAO interface {
 }
 
 // impl
-type SKCSuggestionEngineDAOImplementation struct{}
+type SKCDeckAPIDAOImplementation struct{}
 
-// Retrieves the version number of the SKC Suggestion DB or throws an error if an exception occurs.
-func (dbInterface SKCSuggestionEngineDAOImplementation) GetSKCSuggestionDBVersion() (string, error) {
+// Retrieves the version number of the SKC Deck API DB or throws an error if an exception occurs.
+func (dbInterface SKCDeckAPIDAOImplementation) GetSKCDeckAPIDBVersion() (string, error) {
 	var commandResult bson.M
 	command := bson.D{{Key: "serverStatus", Value: 1}}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	if err := skcSuggestionDB.RunCommand(ctx, command).Decode(&commandResult); err != nil {
-		log.Println("Error getting SKC Suggestion DB version", err)
+	if err := skcDeckDB.RunCommand(ctx, command).Decode(&commandResult); err != nil {
+		log.Println("Error getting SKC Deck API DB version", err)
 		return "", err
 	} else {
 		return fmt.Sprintf("%v", commandResult["version"]), nil
 	}
 }
 
-func (dbInterface SKCSuggestionEngineDAOImplementation) InsertDeckList(deckList model.DeckList) {
+func (dbInterface SKCDeckAPIDAOImplementation) InsertDeckList(deckList model.DeckList) {
 	deckList.CreatedAt = time.Now()
 	deckList.UpdatedAt = deckList.CreatedAt
 
@@ -62,7 +62,7 @@ func (dbInterface SKCSuggestionEngineDAOImplementation) InsertDeckList(deckList 
 	}
 }
 
-func (dbInterface SKCSuggestionEngineDAOImplementation) GetDeckList(deckID string) (*model.DeckList, *model.APIError) {
+func (dbInterface SKCDeckAPIDAOImplementation) GetDeckList(deckID string) (*model.DeckList, *model.APIError) {
 	if objectId, err := primitive.ObjectIDFromHex(deckID); err != nil {
 		log.Println("Invalid Object ID.")
 		return nil, &model.APIError{Message: "Object ID used for deck list was not valid."}
@@ -80,7 +80,7 @@ func (dbInterface SKCSuggestionEngineDAOImplementation) GetDeckList(deckID strin
 	}
 }
 
-func (dbInterface SKCSuggestionEngineDAOImplementation) GetDecksThatFeatureCards(cardIDs []string) (*[]model.DeckList, *model.APIError) {
+func (dbInterface SKCDeckAPIDAOImplementation) GetDecksThatFeatureCards(cardIDs []string) (*[]model.DeckList, *model.APIError) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 

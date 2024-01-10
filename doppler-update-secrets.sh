@@ -2,8 +2,8 @@
 doppler secrets upload -p skc-deck-api -c dev .env
 doppler secrets upload -p skc-deck-api -c dev_docker .env_docker_local
 
-cat certs/skc-suggestion-engine-db.pem | doppler secrets set -p skc-deck-api -c dev MONGODB_X509
-cat certs/skc-suggestion-engine-db.pem | doppler secrets set -p skc-deck-api -c dev_docker MONGODB_X509
+cat certs/skc-deck-api-db.pem | doppler secrets set -p skc-deck-api -c dev MONGODB_X509
+cat certs/skc-deck-api-db.pem | doppler secrets set -p skc-deck-api -c dev_docker MONGODB_X509
 
 # upload tls certs
 cat certs/certificate.crt | doppler secrets set -p skc-deck-api -c dev SSL_CERTIFICATE
@@ -18,7 +18,7 @@ cat certs/ca_bundle.crt | doppler secrets set -p skc-deck-api -c dev_docker SSL_
 #######################
 # Upload - Prod
 doppler secrets upload -p skc-deck-api -c prod .env_prod
-cat certs/skc-suggestion-engine-db.pem | doppler secrets set -p skc-deck-api -c prod MONGODB_X509
+cat certs/skc-deck-api-db.pem | doppler secrets set -p skc-deck-api -c prod MONGODB_X509
 
 # upload tls certs
 cat certs/certificate.crt | doppler secrets set -p skc-deck-api -c prod SSL_CERTIFICATE

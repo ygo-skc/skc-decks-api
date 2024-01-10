@@ -10,7 +10,7 @@ doppler secrets download -p skc-deck-api -c prod --no-file --format json | jq -r
 
 # Download Certs
 mkdir -p certs
-doppler secrets get -p skc-deck-api -c prod MONGODB_X509 --plain  > certs/skc-suggestion-engine-db.pem
+doppler secrets get -p skc-deck-api -c prod MONGODB_X509 --plain  > certs/skc-deck-api-db.pem
 
 doppler secrets get -p skc-deck-api -c prod SSL_CERTIFICATE --plain  > certs/certificate.crt
 doppler secrets get -p skc-deck-api -c prod SSL_PRIVATE_KEY --plain  > certs/private.key

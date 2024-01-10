@@ -9,7 +9,7 @@ import (
 
 func main() {
 	util.SetupEnv()
-	db.EstablishSKCSuggestionEngineDBConn()
+	db.EstablishSKCDeckAPIDBConn()
 
 	api.ConfigureServer()
 	go api.ServeTLS()

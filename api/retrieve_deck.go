@@ -18,7 +18,7 @@ func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 
 	var deckList *model.DeckList
 	var err *model.APIError
-	if deckList, err = skcSuggestionEngineDBInterface.GetDeckList(deckID); err != nil {
+	if deckList, err = skcDeckAPIDBInterface.GetDeckList(deckID); err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(res).Encode(err)
 		return
@@ -65,7 +65,7 @@ func getDecksFeaturingCardHandler(res http.ResponseWriter, req *http.Request) {
 
 	suggestedDecks := model.SuggestedDecks{}
 
-	suggestedDecks.FeaturedIn, _ = skcSuggestionEngineDBInterface.GetDecksThatFeatureCards([]string{cardID})
+	suggestedDecks.FeaturedIn, _ = skcDeckAPIDBInterface.GetDecksThatFeatureCards([]string{cardID})
 
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(suggestedDecks)

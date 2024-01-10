@@ -15,15 +15,15 @@ import (
 )
 
 const (
-	CONTEXT = "/api/v1/suggestions"
+	CONTEXT = "/api/v1/deck"
 )
 
 var (
-	skcSuggestionEngineDBInterface db.SKCSuggestionEngineDAO = db.SKCSuggestionEngineDAOImplementation{}
-	router                         *mux.Router
-	corsOpts                       *cors.Cors
-	serverAPIKey                   string
-	chicagoLocation                *time.Location
+	skcDeckAPIDBInterface db.SKCDeckAPIDAO = db.SKCDeckAPIDAOImplementation{}
+	router                *mux.Router
+	corsOpts              *cors.Cors
+	serverAPIKey          string
+	chicagoLocation       *time.Location
 )
 
 func init() {
@@ -77,9 +77,9 @@ func ConfigureServer() {
 
 	// configure non-admin routes
 	unprotectedRoutes := router.PathPrefix(CONTEXT).Subrouter()
-	unprotectedRoutes.HandleFunc("/deck", submitNewDeckListHandler).Methods(http.MethodPost).Name("Deck List Submission")
-	unprotectedRoutes.HandleFunc("/deck/card/{cardID:[0-9]{8}}", getDecksFeaturingCardHandler).Methods(http.MethodGet).Name("Deck Suggestion For Card")
-	unprotectedRoutes.HandleFunc("/deck/{deckID:[0-9a-z]+}", getDeckListHandler).Methods(http.MethodGet).Name("Retrieve Info On Deck")
+	unprotectedRoutes.HandleFunc("", submitNewDeckListHandler).Methods(http.MethodPost).Name("Deck List Submission")
+	unprotectedRoutes.HandleFunc("/card/{cardID:[0-9]{8}}", getDecksFeaturingCardHandler).Methods(http.MethodGet).Name("Deck Featuring Card")
+	unprotectedRoutes.HandleFunc("/{deckID:[0-9a-z]+}", getDeckListHandler).Methods(http.MethodGet).Name("Retrieve Info On Deck")
 
 	// admin routes
 	protectedRoutes := router.PathPrefix(CONTEXT).Subrouter()
@@ -106,16 +106,16 @@ func ConfigureServer() {
 
 // configure server to handle HTTPS (secured) calls
 func ServeTLS() {
-	log.Println("Starting server in port 9000 (secured)")
-	if err := http.ListenAndServeTLS(":9000", "certs/certificate.crt", "certs/private.key", corsOpts.Handler(router)); err != nil { // docker does not like localhost:9000 so im just using port number
+	log.Println("Starting server in port 9001 (secured)")
+	if err := http.ListenAndServeTLS(":9001", "certs/certificate.crt", "certs/private.key", corsOpts.Handler(router)); err != nil { // docker does not like localhost:9001 so im just using port number
 		log.Fatalf("There was an error starting api server: %s", err)
 	}
 }
 
 // configure server to handle HTTPs (un-secured) calls
 func ServeUnsecured() {
-	log.Println("Starting server in port 90 (unsecured)")
-	if err := http.ListenAndServe(":90", corsOpts.Handler(router)); err != nil {
+	log.Println("Starting server in port 91 (unsecured)")
+	if err := http.ListenAndServe(":91", corsOpts.Handler(router)); err != nil {
 		log.Fatalf("There was an error starting api server: %s", err)
 	}
 }
