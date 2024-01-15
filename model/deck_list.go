@@ -19,7 +19,7 @@ type SuggestedDecks struct {
 type DeckList struct {
 	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name              string             `bson:"name" json:"name" validate:"required,decklistname"`
-	ContentB64        string             `bson:"content" json:"listContent" validate:"required,base64"`
+	ContentB64        string             `bson:"content" json:"content" validate:"required,base64"`
 	VideoUrl          string             `bson:"videoUrl" json:"videoUrl" validate:"omitempty,url"`
 	UniqueCards       []string           `bson:"uniqueCards" json:"uniqueCards" validate:"omitempty"`
 	DeckMascots       []string           `bson:"deckMascots" json:"deckMascots" validate:"omitempty,deckmascots"`
