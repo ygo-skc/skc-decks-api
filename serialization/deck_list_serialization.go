@@ -17,7 +17,7 @@ var (
 
 func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) {
 	var dlb model.DeckListBreakdown
-	var cardData *model.CardDataMap
+	var cardData *model.BatchCardInfo
 	var err *model.APIError
 
 	if dlb, err = transformDeckListStringToMap(dl); err != nil {
@@ -27,7 +27,8 @@ func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) 
 	if cardData, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
 		return nil, err
 	} else {
-		dlb.AllCards = *cardData
+		dlb.AllCards = cardData.CardInfo
+		dlb.InvalidIDs = cardData.InvalidCardIDs
 		return &dlb, nil
 	}
 }

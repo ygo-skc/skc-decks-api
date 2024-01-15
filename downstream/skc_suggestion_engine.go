@@ -16,7 +16,7 @@ const (
 	BATCH_CARD_INFO_OPERATION = "Batch Card Info"
 )
 
-func FetchBatchCardInfo(cardIDs []string) (*model.CardDataMap, *model.APIError) {
+func FetchBatchCardInfo(cardIDs []string) (*model.BatchCardInfo, *model.APIError) {
 	log.Printf("Fetching card info for the following IDs: %v", cardIDs)
 
 	var resp *http.Response
@@ -31,7 +31,7 @@ func FetchBatchCardInfo(cardIDs []string) (*model.CardDataMap, *model.APIError) 
 	}
 	defer resp.Body.Close()
 
-	var cardData model.CardDataMap
+	var cardData model.BatchCardInfo
 	if err = json.NewDecoder(resp.Body).Decode(&cardData); err != nil && err != io.EOF {
 		log.Printf("Error occurred while deserializing output from Suggestion Engine. Operation: %s. Error %v", BATCH_CARD_INFO_OPERATION, err)
 		return nil, &model.APIError{Message: "Error fetching card info", StatusCode: http.StatusInternalServerError}
