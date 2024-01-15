@@ -21,13 +21,15 @@ func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) 
 	var err *model.APIError
 
 	if dlb, err = transformDeckListStringToMap(dl); err != nil {
-		return nil, &model.APIError{Message: "Could not transform to map", StatusCode: http.StatusInternalServerError}
-	} else if cardData, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
-		dlb.AllCards = *cardData
 		return nil, err
 	}
 
-	return &dlb, nil
+	if cardData, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
+		return nil, err
+	} else {
+		dlb.AllCards = *cardData
+		return &dlb, nil
+	}
 }
 
 // Transforms decoded deck list into a map that can be parsed easier.
@@ -44,7 +46,7 @@ func transformDeckListStringToMap(list string) (model.DeckListBreakdown, *model.
 
 		if _, isPresent := cardCopiesInDeck[cardID]; isPresent {
 			log.Printf("Deck list contains multiple instances of the same card {%s}.", cardID)
-			return model.DeckListBreakdown{}, &model.APIError{Message: "Deck list contains multiple instance of same card. Make sure a cardID appears only once in the deck list."}
+			return model.DeckListBreakdown{}, &model.APIError{Message: "Deck list contains multiple instance of same card. Make sure a cardID appears only once in the deck list.", StatusCode: http.StatusBadRequest}
 		}
 		cardCopiesInDeck[cardID] = quantity
 		cards = append(cards, cardID)

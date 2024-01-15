@@ -126,7 +126,7 @@ func (dlb DeckListBreakdown) Validate() *APIError {
 
 	// validate main deck has correct number of cards
 	if dlb.NumMainDeckCards < 40 || dlb.NumMainDeckCards > 60 {
-		log.Printf("Main deck cannot contain less than 40 cards and no more than 60 cards. Found %d.", dlb.NumMainDeckCards)
+		log.Printf("Main deck cannot contain less than 40 cards and no more than 60 cards. Current cards contains %d cards.", dlb.NumMainDeckCards)
 		return &APIError{Message: "Main deck cannot contain less than 40 cards and cannot contain more than 60 cards. Found " + strconv.Itoa(dlb.NumMainDeckCards) + ".", StatusCode: http.StatusBadRequest}
 	}
 
