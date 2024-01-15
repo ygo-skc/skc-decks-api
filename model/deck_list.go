@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"sort"
 	"strconv"
 	"strings"
@@ -111,23 +112,23 @@ func formattedLine(card Card, quantity int) string {
 	return fmt.Sprintf("%dx%s|%s\n", quantity, card.CardID, card.CardName)
 }
 
-func (dlb DeckListBreakdown) Validate() APIError {
+func (dlb DeckListBreakdown) Validate() *APIError {
 	if len(dlb.InvalidIDs) > 0 {
 		log.Println("Deck list contains card(s) that were not found in skc DB. All cards not found in DB:", dlb.InvalidIDs)
-		return APIError{Message: "Found cards in deck list that are not yet in the database. Remove the cards before submitting again. Cards not found " + strings.Join(dlb.InvalidIDs, ", ")}
+		return &APIError{Message: "Found cards in deck list that are not yet in the database. Remove the cards before submitting again. Cards not found " + strings.Join(dlb.InvalidIDs, ", "), StatusCode: http.StatusBadRequest}
 	}
 
 	// validate extra deck has correct number of cards
 	if dlb.NumExtraDeckCards > 15 {
 		log.Println("Extra deck cannot contain more than 15 cards. Found", dlb.NumExtraDeckCards)
-		return APIError{Message: "Too many extra deck cards found in deck list. Found " + strconv.Itoa(dlb.NumExtraDeckCards)}
+		return &APIError{Message: "Too many extra deck cards found in deck list. Found " + strconv.Itoa(dlb.NumExtraDeckCards), StatusCode: http.StatusBadRequest}
 	}
 
 	// validate main deck has correct number of cards
 	if dlb.NumMainDeckCards < 40 || dlb.NumMainDeckCards > 60 {
 		log.Printf("Main deck cannot contain less than 40 cards and no more than 60 cards. Found %d.", dlb.NumMainDeckCards)
-		return APIError{Message: "Main deck cannot contain less than 40 cards and cannot contain more than 60 cards. Found " + strconv.Itoa(dlb.NumMainDeckCards) + "."}
+		return &APIError{Message: "Main deck cannot contain less than 40 cards and cannot contain more than 60 cards. Found " + strconv.Itoa(dlb.NumMainDeckCards) + ".", StatusCode: http.StatusBadRequest}
 	}
 
-	return APIError{}
+	return nil
 }

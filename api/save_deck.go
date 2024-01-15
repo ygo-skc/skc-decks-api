@@ -15,9 +15,7 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 
 	if err := json.NewDecoder(req.Body).Decode(&deckList); err != nil {
 		log.Println("Error occurred while reading submitNewDeckListHandler request body.")
-
-		res.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(res).Encode(model.APIError{Message: "Body could not be deserialized."})
+		model.HandleServerResponse(model.APIError{Message: "Body could not be deserialized.", StatusCode: http.StatusUnprocessableEntity}, res)
 		return
 	}
 
@@ -25,7 +23,7 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 
 	// object validation
 	if err := deckList.Validate(); err != nil {
-		res.WriteHeader(http.StatusUnprocessableEntity)
+		res.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(res).Encode(err)
 		return
 	}
@@ -43,9 +41,8 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 
 	deckListBreakdown.Sort()
 
-	if err := deckListBreakdown.Validate(); err.Message != "" {
-		res.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(res).Encode(err)
+	if err := deckListBreakdown.Validate(); err != nil {
+		err.HandleServerResponse(res)
 		return
 	}
 

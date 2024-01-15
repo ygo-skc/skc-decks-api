@@ -17,11 +17,13 @@ var (
 
 func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) {
 	var dlb model.DeckListBreakdown
+	var cardData *model.CardDataMap
 	var err *model.APIError
 
 	if dlb, err = transformDeckListStringToMap(dl); err != nil {
 		return nil, &model.APIError{Message: "Could not transform to map", StatusCode: http.StatusInternalServerError}
-	} else if dlb.AllCards, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
+	} else if cardData, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
+		dlb.AllCards = *cardData
 		return nil, err
 	}
 
