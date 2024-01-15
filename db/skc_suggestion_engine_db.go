@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/ygo-skc/skc-deck-api/model"
@@ -65,7 +66,7 @@ func (dbInterface SKCDeckAPIDAOImplementation) InsertDeckList(deckList model.Dec
 func (dbInterface SKCDeckAPIDAOImplementation) GetDeckList(deckID string) (*model.DeckList, *model.APIError) {
 	if objectId, err := primitive.ObjectIDFromHex(deckID); err != nil {
 		log.Println("Invalid Object ID.")
-		return nil, &model.APIError{Message: "Object ID used for deck list was not valid."}
+		return nil, &model.APIError{Message: "Object ID used for deck list was not valid.", StatusCode: http.StatusBadRequest}
 	} else {
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
@@ -73,7 +74,7 @@ func (dbInterface SKCDeckAPIDAOImplementation) GetDeckList(deckID string) (*mode
 		var dl model.DeckList
 		if err := deckListCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&dl); err != nil {
 			log.Printf("Error retrieving deck list w/ ID %s. Err: %v", deckID, err)
-			return nil, &model.APIError{Message: "Requested deck list not found in DB."}
+			return nil, &model.APIError{Message: "Requested deck list not found in DB.", StatusCode: http.StatusNotFound}
 		} else {
 			return &dl, nil
 		}
@@ -94,12 +95,12 @@ func (dbInterface SKCDeckAPIDAOImplementation) GetDecksThatFeatureCards(cardIDs 
 
 	if cursor, err := deckListCollection.Find(ctx, bson.M{"uniqueCards": bson.M{"$in": cardIDs}}, opts); err != nil {
 		log.Printf("Error retrieving all deck lists that feature cards w/ ID %v. Err: %v", cardIDs, err)
-		return nil, &model.APIError{Message: "Could not get deck lists."}
+		return nil, &model.APIError{Message: "Could not get deck lists.", StatusCode: http.StatusInternalServerError}
 	} else {
 		dl := []model.DeckList{}
 		if err := cursor.All(ctx, &dl); err != nil {
 			log.Printf("Error retrieving all deck lists that feature cards w/ ID %v. Err: %v", cardIDs, err)
-			return nil, &model.APIError{Message: "Could not get deck lists."}
+			return nil, &model.APIError{Message: "Could not get deck lists.", StatusCode: http.StatusInternalServerError}
 		}
 
 		return &dl, nil

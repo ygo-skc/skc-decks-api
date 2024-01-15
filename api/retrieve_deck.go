@@ -19,8 +19,7 @@ func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	var deckList *model.DeckList
 	var err *model.APIError
 	if deckList, err = skcDeckAPIDBInterface.GetDeckList(deckID); err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(err)
+		err.HandleServerResponse(res)
 		return
 	}
 
