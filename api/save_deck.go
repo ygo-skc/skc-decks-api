@@ -35,13 +35,8 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 
 	var deckListBreakdown model.DeckListBreakdown
 	if dlb, err := serialization.DeserializeDeckList(decodedList); err != nil {
-		if err.Message == "Could not transform to map" {
-			res.WriteHeader(http.StatusUnprocessableEntity)
-			json.NewEncoder(res).Encode(err)
-		} else if err.Message == "Could not access DB" {
-			res.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(res).Encode(err)
-		}
+		err.HandleServerResponse(res)
+		return
 	} else {
 		deckListBreakdown = *dlb
 	}

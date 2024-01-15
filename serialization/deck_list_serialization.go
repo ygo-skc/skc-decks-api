@@ -2,6 +2,7 @@ package serialization
 
 import (
 	"log"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -19,15 +20,11 @@ func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) 
 	var err *model.APIError
 
 	if dlb, err = transformDeckListStringToMap(dl); err != nil {
-		return nil, &model.APIError{Message: "Could not transform to map"}
+		return nil, &model.APIError{Message: "Could not transform to map", StatusCode: http.StatusInternalServerError}
+	} else if dlb.AllCards, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
+		return nil, err
 	}
 
-	var allCards model.CardDataMap
-	if allCards, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
-		return nil, &model.APIError{Message: "Error fetching data"}
-	}
-
-	dlb.AllCards = allCards
 	return &dlb, nil
 }
 

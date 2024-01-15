@@ -27,14 +27,14 @@ func FetchBatchCardInfo(cardIDs []string) (model.CardDataMap, *model.APIError) {
 	json.NewEncoder(reqBody).Encode(cardIDs)
 
 	if resp, err = http.Post(fmt.Sprintf("http://localhost:90%s", BATCH_CARD_INFO_ENDPOINT), "application/json", reqBody); err != nil {
-		log.Println("There was an issue calling Suggestion Engine. Operation: . Error: ", BATCH_CARD_INFO_OPERATION, err)
-		return nil, &model.APIError{Message: "Error fetching card info", StatusCode: 500}
+		log.Printf("There was an issue calling Suggestion Engine. Operation: %s. Error: %s", BATCH_CARD_INFO_OPERATION, err)
+		return nil, &model.APIError{Message: "Error fetching card info", StatusCode: http.StatusInternalServerError}
 	}
 	defer resp.Body.Close()
 
 	if err = json.NewDecoder(resp.Body).Decode(&cards); err != nil && err != io.EOF {
 		log.Printf("Error occurred while deserializing output from Suggestion Engine. Operation: %s. Error %v", BATCH_CARD_INFO_OPERATION, err)
-		return nil, &model.APIError{Message: "Error fetching card info", StatusCode: 500}
+		return nil, &model.APIError{Message: "Error fetching card info", StatusCode: http.StatusInternalServerError}
 	}
 
 	return cards, nil
