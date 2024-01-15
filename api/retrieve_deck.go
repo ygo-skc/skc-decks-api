@@ -26,16 +26,12 @@ func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	decodedListBytes, _ := base64.StdEncoding.DecodeString(deckList.ContentB64)
 	decodedList := string(decodedListBytes) // decoded string of list contents
 
-	var deckListBreakdown model.DeckListBreakdown
-	if dlb, err := serialization.DeserializeDeckList(decodedList); err != nil {
+	var deckListBreakdown *model.DeckListBreakdown
+	if deckListBreakdown, err = serialization.DeserializeDeckList(decodedList); err != nil {
 		err.HandleServerResponse(res)
 		return
-	} else {
-		deckListBreakdown = *dlb
 	}
 
-	deckListBreakdown.Partition()
-	deckListBreakdown.Sort()
 	mainDeckContent := make([]model.Content, 0, len(deckListBreakdown.MainDeck))
 	for _, card := range deckListBreakdown.MainDeck {
 		mainDeckContent = append(mainDeckContent, model.Content{Card: card, Quantity: deckListBreakdown.CardQuantity[card.CardID]})

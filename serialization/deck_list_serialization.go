@@ -29,6 +29,9 @@ func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) 
 	} else {
 		dlb.AllCards = cardData.CardInfo
 		dlb.InvalidIDs = cardData.InvalidCardIDs
+
+		dlb.Partition()
+		dlb.Sort()
 		return &dlb, nil
 	}
 }

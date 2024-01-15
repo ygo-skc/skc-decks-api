@@ -20,8 +20,8 @@ type DeckList struct {
 	Name              string             `bson:"name" json:"name" validate:"required,decklistname"`
 	ContentB64        string             `bson:"content" json:"content" validate:"required,base64"`
 	VideoUrl          string             `bson:"videoUrl" json:"videoUrl" validate:"omitempty,url"`
-	UniqueCards       []string           `bson:"uniqueCards" json:"uniqueCards" validate:"omitempty"`
-	DeckMascots       []string           `bson:"deckMascots" json:"deckMascots" validate:"omitempty,deckmascots"`
+	UniqueCards       CardIDs            `bson:"uniqueCards" json:"uniqueCards" validate:"omitempty"`
+	DeckMascots       CardIDs            `bson:"deckMascots" json:"deckMascots" validate:"omitempty,deckmascots"`
 	NumMainDeckCards  int                `bson:"numMainDeckCards" json:"numMainDeckCards"`
 	NumExtraDeckCards int                `bson:"numExtraDeckCards" json:"numExtraDeckCards"`
 	Tags              []string           `bson:"tags" json:"tags" validate:"required"`
@@ -47,8 +47,8 @@ type Content struct {
 
 type DeckListBreakdown struct {
 	CardQuantity      map[string]int
-	CardIDs           []string
-	InvalidIDs        []string
+	CardIDs           CardIDs
+	InvalidIDs        CardIDs
 	AllCards          CardDataMap
 	MainDeck          Cards
 	ExtraDeck         Cards

@@ -39,9 +39,6 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 		deckListBreakdown = *dlb
 	}
 
-	deckListBreakdown.Partition()
-	deckListBreakdown.Sort()
-
 	if err := deckListBreakdown.Validate(); err != nil {
 		err.HandleServerResponse(res)
 		return
