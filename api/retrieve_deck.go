@@ -34,6 +34,7 @@ func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 		deckListBreakdown = *dlb
 	}
 
+	deckListBreakdown.Partition()
 	deckListBreakdown.Sort()
 	mainDeckContent := make([]model.Content, 0, len(deckListBreakdown.MainDeck))
 	for _, card := range deckListBreakdown.MainDeck {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sort"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -32,6 +31,15 @@ type DeckList struct {
 	ExtraDeck         *[]Content         `bson:"extraDeck,omitempty" json:"extraDeck,omitempty"`
 }
 
+// validate and handle validation error messages
+func (dl DeckList) Validate() *validation.ValidationErrors {
+	if err := validation.V.Struct(dl); err != nil {
+		return validation.HandleValidationErrors(err.(validator.ValidationErrors))
+	} else {
+		return nil
+	}
+}
+
 type Content struct {
 	Quantity int  `bson:"omitempty" json:"quantity"`
 	Card     Card `bson:"omitempty" json:"card"`
@@ -42,22 +50,13 @@ type DeckListBreakdown struct {
 	CardIDs           []string
 	InvalidIDs        []string
 	AllCards          CardDataMap
-	MainDeck          []Card
-	ExtraDeck         []Card
+	MainDeck          Cards
+	ExtraDeck         Cards
 	NumMainDeckCards  int
 	NumExtraDeckCards int
 }
 
-// validate and handle validation error messages
-func (dl DeckList) Validate() *validation.ValidationErrors {
-	if err := validation.V.Struct(dl); err != nil {
-		return validation.HandleValidationErrors(err.(validator.ValidationErrors))
-	} else {
-		return nil
-	}
-}
-
-func (dlb *DeckListBreakdown) Sort() {
+func (dlb *DeckListBreakdown) Partition() {
 	dlb.MainDeck = []Card{}
 	dlb.ExtraDeck = []Card{}
 	numMainDeckCards := 0
@@ -77,15 +76,11 @@ func (dlb *DeckListBreakdown) Sort() {
 
 	dlb.NumMainDeckCards = numMainDeckCards
 	dlb.NumExtraDeckCards = numExtraDeckCards
-
-	sortDeckUsingName(&dlb.MainDeck)
-	sortDeckUsingName(&dlb.ExtraDeck)
 }
 
-func sortDeckUsingName(cards *[]Card) {
-	sort.SliceStable(*cards, func(i, j int) bool {
-		return (*cards)[i].CardName < (*cards)[j].CardName
-	})
+func (dlb *DeckListBreakdown) Sort() {
+	dlb.MainDeck.SortCardsByName()
+	dlb.ExtraDeck.SortCardsByName()
 }
 
 func (dlb DeckListBreakdown) ListStringCleanup() string {

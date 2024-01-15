@@ -1,16 +1,19 @@
 package model
 
 import (
+	"sort"
 	"strings"
 )
 
+type CardIDs []string
+
 type BatchCardIDs struct {
-	CardIDs []string `json:"cardIDs" validate:"required"`
+	CardIDs CardIDs `json:"cardIDs" validate:"required"`
 }
 
 type BatchCardInfo struct {
 	CardInfo       CardDataMap `json:"cardInfo"`
-	InvalidCardIDs []string    `json:"invalidCardIDs"`
+	InvalidCardIDs CardIDs     `json:"invalidCardIDs"`
 }
 
 type Card struct {
@@ -24,9 +27,17 @@ type Card struct {
 	MonsterDefense *uint16 `db:"monster_defense" json:"monsterDefense,omitempty"`
 }
 
-type CardDataMap map[string]Card
-
 func (c Card) IsExtraDeckMonster() bool {
 	color := strings.ToUpper(c.CardColor)
 	return strings.Contains(color, "FUSION") || strings.Contains(color, "SYNCHRO") || strings.Contains(color, "XYZ") || strings.Contains(color, "PENDULUM") || strings.Contains(color, "LINK")
 }
+
+type Cards []Card
+
+func (cards Cards) SortCardsByName() {
+	sort.SliceStable(cards, func(i, j int) bool {
+		return (cards)[i].CardName < (cards)[j].CardName
+	})
+}
+
+type CardDataMap map[string]Card
