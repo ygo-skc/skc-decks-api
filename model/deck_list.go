@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 	"sort"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -66,9 +64,7 @@ func (dlb *DeckListBreakdown) Sort() {
 	numExtraDeckCards := 0
 
 	for _, cardID := range dlb.CardIDs {
-		if _, isPresent := dlb.AllCards[cardID]; !isPresent {
-			dlb.InvalidIDs = append(dlb.InvalidIDs, cardID)
-		} else {
+		if _, isPresent := dlb.AllCards[cardID]; isPresent {
 			if dlb.AllCards[cardID].IsExtraDeckMonster() {
 				dlb.ExtraDeck = append(dlb.ExtraDeck, dlb.AllCards[cardID])
 				numExtraDeckCards += dlb.CardQuantity[cardID]
@@ -113,23 +109,26 @@ func formattedLine(card Card, quantity int) string {
 }
 
 func (dlb DeckListBreakdown) Validate() *APIError {
+	var msg = ""
+
 	if len(dlb.InvalidIDs) > 0 {
-		log.Println("Deck list contains card(s) that were not found in skc DB. All cards not found in DB:", dlb.InvalidIDs)
-		return &APIError{Message: "Found cards in deck list that are not yet in the database. Remove the cards before submitting again. Cards not found " + strings.Join(dlb.InvalidIDs, ", "), StatusCode: http.StatusBadRequest}
+		msg = fmt.Sprintf("Deck list contains card(s) that were not found in skc DB. All cards not found in DB: %v", dlb.InvalidIDs)
 	}
 
 	// validate extra deck has correct number of cards
 	if dlb.NumExtraDeckCards > 15 {
-		log.Println("Extra deck cannot contain more than 15 cards. Found", dlb.NumExtraDeckCards)
-		return &APIError{Message: "Too many extra deck cards found in deck list. Found " + strconv.Itoa(dlb.NumExtraDeckCards), StatusCode: http.StatusBadRequest}
+		msg = fmt.Sprintf("Extra deck cannot contain more than 15 cards. Current deck contains %d extra deck cards.", dlb.NumExtraDeckCards)
 	}
 
 	// validate main deck has correct number of cards
 	if dlb.NumMainDeckCards < 40 || dlb.NumMainDeckCards > 60 {
-		msg := fmt.Sprintf("Main deck cannot contain less than 40 cards and no more than 60 cards. Current deck contains %d cards.", dlb.NumMainDeckCards)
-		log.Println(msg)
-		return &APIError{Message: msg, StatusCode: http.StatusBadRequest}
+		msg = fmt.Sprintf("Main deck cannot contain less than 40 cards and no more than 60 cards. Current deck contains %d main deck cards.", dlb.NumMainDeckCards)
 	}
 
-	return nil
+	if msg != "" {
+		log.Println(msg)
+		return &APIError{Message: msg, StatusCode: http.StatusBadRequest}
+	} else {
+		return nil
+	}
 }
