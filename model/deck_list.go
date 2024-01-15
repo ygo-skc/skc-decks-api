@@ -27,8 +27,8 @@ type DeckList struct {
 	Tags              []string           `bson:"tags" json:"tags" validate:"required"`
 	CreatedAt         time.Time          `bson:"createdAt" json:"createdAt"`
 	UpdatedAt         time.Time          `bson:"updatedAt" json:"updatedAt"`
-	MainDeck          *[]Content         `bson:"mainDeck,omitempty" json:"mainDeck,omitempty"`
-	ExtraDeck         *[]Content         `bson:"extraDeck,omitempty" json:"extraDeck,omitempty"`
+	MainDeck          []Content          `bson:"mainDeck,omitempty" json:"mainDeck,omitempty"`
+	ExtraDeck         []Content          `bson:"extraDeck,omitempty" json:"extraDeck,omitempty"`
 }
 
 // validate and handle validation error messages
@@ -81,6 +81,20 @@ func (dlb *DeckListBreakdown) Partition() {
 func (dlb *DeckListBreakdown) Sort() {
 	dlb.MainDeck.SortCardsByName()
 	dlb.ExtraDeck.SortCardsByName()
+}
+
+func (dlb *DeckListBreakdown) GetQuantities() ([]Content, []Content) {
+	mainDeckContent := make([]Content, 0, len(dlb.MainDeck))
+	for _, card := range dlb.MainDeck {
+		mainDeckContent = append(mainDeckContent, Content{Card: card, Quantity: dlb.CardQuantity[card.CardID]})
+	}
+
+	extraDeckContent := make([]Content, 0, len(dlb.ExtraDeck))
+	for _, card := range dlb.ExtraDeck {
+		extraDeckContent = append(extraDeckContent, Content{Card: card, Quantity: dlb.CardQuantity[card.CardID]})
+	}
+
+	return mainDeckContent, extraDeckContent
 }
 
 func (dlb DeckListBreakdown) ListStringCleanup() string {

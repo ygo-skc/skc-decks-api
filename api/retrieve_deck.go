@@ -31,18 +31,7 @@ func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 		err.HandleServerResponse(res)
 		return
 	}
-
-	mainDeckContent := make([]model.Content, 0, len(deckListBreakdown.MainDeck))
-	for _, card := range deckListBreakdown.MainDeck {
-		mainDeckContent = append(mainDeckContent, model.Content{Card: card, Quantity: deckListBreakdown.CardQuantity[card.CardID]})
-	}
-	deckList.MainDeck = &mainDeckContent
-
-	extraDeck := make([]model.Content, 0, len(deckListBreakdown.ExtraDeck))
-	for _, card := range deckListBreakdown.ExtraDeck {
-		extraDeck = append(extraDeck, model.Content{Card: card, Quantity: deckListBreakdown.CardQuantity[card.CardID]})
-	}
-	deckList.ExtraDeck = &extraDeck
+	deckList.MainDeck, deckList.ExtraDeck = deckListBreakdown.GetQuantities()
 
 	log.Printf("Successfully retrieved deck list. Name {%s} and encoded deck list content {%s}. This deck list has {%d} main deck cards and {%d} extra deck cards.", deckList.Name, deckList.ContentB64, deckList.NumMainDeckCards, deckList.NumExtraDeckCards)
 	res.WriteHeader(http.StatusOK)
