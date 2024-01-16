@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-playground/validator/v10"
-	"github.com/ygo-skc/skc-deck-api/validation"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -29,15 +27,6 @@ type DeckList struct {
 	UpdatedAt         time.Time          `bson:"updatedAt" json:"updatedAt"`
 	MainDeck          []Content          `bson:"mainDeck,omitempty" json:"mainDeck,omitempty"`
 	ExtraDeck         []Content          `bson:"extraDeck,omitempty" json:"extraDeck,omitempty"`
-}
-
-// validate and handle validation error messages
-func (dl DeckList) Validate() *validation.ValidationErrors {
-	if err := validation.V.Struct(dl); err != nil {
-		return validation.HandleValidationErrors(err.(validator.ValidationErrors))
-	} else {
-		return nil
-	}
 }
 
 type Content struct {

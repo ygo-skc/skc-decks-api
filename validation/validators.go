@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/ygo-skc/skc-deck-api/model"
 )
 
 // Add custom validators to handle validation scenarios not supported out of the box.
@@ -13,7 +14,7 @@ func configureCustomValidators() {
 	})
 
 	V.RegisterValidation(deckMascotsValidator, func(fl validator.FieldLevel) bool {
-		mascots := fl.Field().Interface().([]string)
+		mascots := fl.Field().Interface().(model.CardIDs)
 
 		for ind, mascot := range mascots {
 			if ind == 3 { // size constraint fails
@@ -27,4 +28,13 @@ func configureCustomValidators() {
 
 		return true
 	})
+}
+
+// validate deck list
+func Validate(dl model.DeckList) *ValidationErrors {
+	if err := V.Struct(dl); err != nil {
+		return handleValidationErrors(err.(validator.ValidationErrors))
+	} else {
+		return nil
+	}
 }

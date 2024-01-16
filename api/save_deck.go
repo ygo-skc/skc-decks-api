@@ -8,6 +8,7 @@ import (
 
 	"github.com/ygo-skc/skc-deck-api/model"
 	"github.com/ygo-skc/skc-deck-api/serialization"
+	"github.com/ygo-skc/skc-deck-api/validation"
 )
 
 func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
@@ -22,7 +23,7 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("Client attempting to submit new deck with name {%s} and with list contents (in base64) {%s}", deckList.Name, deckList.ContentB64)
 
 	// object validation
-	if err := deckList.Validate(); err != nil {
+	if err := validation.Validate(deckList); err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(res).Encode(err)
 		return

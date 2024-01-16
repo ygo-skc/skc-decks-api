@@ -55,7 +55,7 @@ func (e *ValidationErrors) HandleServerResponse(res http.ResponseWriter) {
 	json.NewEncoder(res).Encode(e)
 }
 
-func HandleValidationErrors(err validator.ValidationErrors) *ValidationErrors {
+func handleValidationErrors(err validator.ValidationErrors) *ValidationErrors {
 	validationErrors := []validationError{}
 	for _, e := range err {
 		validationErrors = append(validationErrors, validationError{Field: e.Field(), Hint: e.Translate(Translator)})
