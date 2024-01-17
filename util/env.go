@@ -13,7 +13,7 @@ const (
 	ENV_VARIABLE_NAME string = "SKC_DECK_API_DOT_ENV_FILE"
 )
 
-func SetupEnv() {
+func init() {
 	EnvMap = ConfigureEnv()
 }
 

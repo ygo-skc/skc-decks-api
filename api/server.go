@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -20,20 +19,8 @@ const (
 
 var (
 	skcDeckAPIDBInterface db.SKCDeckAPIDAO = db.SKCDeckAPIDAOImplementation{}
-	router                *mux.Router
-	corsOpts              *cors.Cors
 	serverAPIKey          string
-	chicagoLocation       *time.Location
 )
-
-func init() {
-	// init Location
-	if location, err := time.LoadLocation("America/Chicago"); err != nil {
-		log.Fatalln("Could not load Chicago location")
-	} else {
-		chicagoLocation = location
-	}
-}
 
 func verifyApiKey(headers http.Header) *model.APIError {
 	clientKey := headers.Get("API-Key")
@@ -70,10 +57,9 @@ func commonHeadersMiddleware(next http.Handler) http.Handler {
 
 // Configures routes and their middle wares
 // This method should be called before the environment is set up as the API Key will be set according to the value found in environment
-func ConfigureServer() {
-	serverAPIKey = util.EnvMap["API_KEY"] // configure API Key
-
-	router = mux.NewRouter()
+func RunHttpServer() {
+	configureEnv()
+	router := mux.NewRouter()
 
 	// configure non-admin routes
 	unprotectedRoutes := router.PathPrefix(CONTEXT).Subrouter()
@@ -89,7 +75,7 @@ func ConfigureServer() {
 	router.Use(commonHeadersMiddleware)
 
 	// Cors
-	corsOpts = cors.New(cors.Options{
+	corsOpts := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000", "http://dev.thesupremekingscastle.com", "https://dev.thesupremekingscastle.com", "https://thesupremekingscastle.com", "https://www.thesupremekingscastle.com"},
 		AllowedMethods: []string{
 			http.MethodGet,
@@ -102,10 +88,13 @@ func ConfigureServer() {
 			"*", //or you can your header key values which you are using in your application
 		},
 	})
+
+	go serveTLS(router, corsOpts)
+	serveUnsecured(router, corsOpts)
 }
 
 // configure server to handle HTTPS (secured) calls
-func ServeTLS() {
+func serveTLS(router *mux.Router, corsOpts *cors.Cors) {
 	log.Println("Starting server in port 9001 (secured)")
 	if err := http.ListenAndServeTLS(":9001", "certs/certificate.crt", "certs/private.key", corsOpts.Handler(router)); err != nil { // docker does not like localhost:9001 so im just using port number
 		log.Fatalf("There was an error starting api server: %s", err)
@@ -113,9 +102,14 @@ func ServeTLS() {
 }
 
 // configure server to handle HTTPs (un-secured) calls
-func ServeUnsecured() {
+func serveUnsecured(router *mux.Router, corsOpts *cors.Cors) {
 	log.Println("Starting server in port 91 (unsecured)")
 	if err := http.ListenAndServe(":91", corsOpts.Handler(router)); err != nil {
 		log.Fatalf("There was an error starting api server: %s", err)
 	}
+}
+
+func configureEnv() {
+	serverAPIKey = util.EnvMap["API_KEY"] // configure API Key
+	log.Printf("API Key for API %s", serverAPIKey)
 }
