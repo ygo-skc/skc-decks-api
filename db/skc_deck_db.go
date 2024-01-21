@@ -96,12 +96,12 @@ func (dbInterface SKCDeckAPIDAOImplementation) GetDecksThatFeatureCards(cardIDs 
 
 	if cursor, err := deckListCollection.Find(ctx, bson.M{"uniqueCards": bson.M{"$in": cardIDs}}, opts); err != nil {
 		log.Printf("Error retrieving all deck lists that feature cards w/ ID %v. Err: %v", cardIDs, err)
-		return nil, &model.APIError{Message: "Could not get deck lists.", StatusCode: http.StatusInternalServerError}
+		return nil, &model.APIError{Message: "Error retrieving deck suggestions", StatusCode: http.StatusInternalServerError}
 	} else {
 		dl := []model.DeckList{}
 		if err := cursor.All(ctx, &dl); err != nil {
 			log.Printf("Error retrieving all deck lists that feature cards w/ ID %v. Err: %v", cardIDs, err)
-			return nil, &model.APIError{Message: "Could not get deck lists.", StatusCode: http.StatusInternalServerError}
+			return nil, &model.APIError{Message: "Error retrieving deck suggestions", StatusCode: http.StatusInternalServerError}
 		}
 
 		return &dl, nil

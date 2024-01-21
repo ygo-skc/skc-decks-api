@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/ygo-skc/skc-deck-api/io"
 	"github.com/ygo-skc/skc-deck-api/model"
-	"github.com/ygo-skc/skc-deck-api/serialization"
 )
 
 func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
@@ -27,13 +27,14 @@ func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	decodedList := string(decodedListBytes) // decoded string of list contents
 
 	var deckListBreakdown *model.DeckListBreakdown
-	if deckListBreakdown, err = serialization.DeserializeDeckList(decodedList); err != nil {
+	if deckListBreakdown, err = io.DeserializeDeckList(decodedList); err != nil {
 		err.HandleServerResponse(res)
 		return
 	}
 	deckList.MainDeck, deckList.ExtraDeck = deckListBreakdown.GetQuantities()
 
-	log.Printf("Successfully retrieved deck list. Name {%s} and encoded deck list content {%s}. This deck list has {%d} main deck cards and {%d} extra deck cards.", deckList.Name, deckList.ContentB64, deckList.NumMainDeckCards, deckList.NumExtraDeckCards)
+	log.Printf("Successfully retrieved deck list. Name {%s} and encoded deck list content {%s}. This deck list has {%d} main deck cards and {%d} extra deck cards.",
+		deckList.Name, deckList.ContentB64, deckList.NumMainDeckCards, deckList.NumExtraDeckCards)
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(deckList)
 }

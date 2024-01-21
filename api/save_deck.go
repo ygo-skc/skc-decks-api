@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ygo-skc/skc-deck-api/io"
 	"github.com/ygo-skc/skc-deck-api/model"
-	"github.com/ygo-skc/skc-deck-api/serialization"
 	"github.com/ygo-skc/skc-deck-api/validation"
 )
 
@@ -33,7 +33,7 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	decodedList := string(decodedListBytes) // decoded string of list contents
 
 	var deckListBreakdown model.DeckListBreakdown
-	if dlb, err := serialization.DeserializeDeckList(decodedList); err != nil {
+	if dlb, err := io.DeserializeDeckList(decodedList); err != nil {
 		err.HandleServerResponse(res)
 		return
 	} else {
