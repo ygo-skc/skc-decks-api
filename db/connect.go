@@ -15,6 +15,7 @@ const (
 	maxPoolSize = 40
 )
 
+// connects to Deck API database
 func EstablishSKCDeckAPIDBConn() {
 	certificateKeyFilePath := "./certs/skc-deck-api-db.pem"
 	uri := "mongodb+srv://skc-deck-api-east1.twjikpk.mongodb.net/?tlsCertificateKeyFile=%s"

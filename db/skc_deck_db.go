@@ -51,7 +51,8 @@ func (dbInterface SKCDeckAPIDAOImplementation) InsertDeckList(deckList model.Dec
 	deckList.CreatedAt = time.Now()
 	deckList.UpdatedAt = deckList.CreatedAt
 
-	log.Printf("Inserting deck with name %s with Main Deck size %d and Extra Deck size %d. List contents (in base64 and possibly reformatted) %s", deckList.Name, deckList.NumMainDeckCards, deckList.NumExtraDeckCards, deckList.ContentB64)
+	log.Printf("Inserting deck with name %s with Main Deck size %d and Extra Deck size %d. List contents (in base64 and possibly reformatted) %s",
+		deckList.Name, deckList.NumMainDeckCards, deckList.NumExtraDeckCards, deckList.ContentB64)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -74,7 +75,7 @@ func (dbInterface SKCDeckAPIDAOImplementation) GetDeckList(deckID string) (*mode
 		var dl model.DeckList
 		if err := deckListCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&dl); err != nil {
 			log.Printf("Error retrieving deck list w/ ID %s. Err: %v", deckID, err)
-			return nil, &model.APIError{Message: "Requested deck list not found in DB.", StatusCode: http.StatusNotFound}
+			return nil, &model.APIError{Message: "Error retrieving deck", StatusCode: http.StatusNotFound}
 		} else {
 			return &dl, nil
 		}

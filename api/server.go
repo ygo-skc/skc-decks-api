@@ -22,6 +22,7 @@ var (
 	serverAPIKey          string
 )
 
+// verifies API Key from request header is the correct API Key
 func verifyApiKey(headers http.Header) *model.APIError {
 	clientKey := headers.Get("API-Key")
 
@@ -33,6 +34,7 @@ func verifyApiKey(headers http.Header) *model.APIError {
 	return nil
 }
 
+// middleware used to verify API Key
 func verifyAPIKeyMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		if err := verifyApiKey(req.Header); err != nil {
@@ -63,6 +65,7 @@ func RunHttpServer() {
 
 	// configure non-admin routes
 	unprotectedRoutes := router.PathPrefix(CONTEXT).Subrouter()
+	unprotectedRoutes.HandleFunc("/status", getAPIStatusHandler)
 	unprotectedRoutes.HandleFunc("", submitNewDeckListHandler).Methods(http.MethodPost).Name("Deck List Submission")
 	unprotectedRoutes.HandleFunc("/card/{cardID:[0-9]{8}}", getDecksFeaturingCardHandler).Methods(http.MethodGet).Name("Deck Featuring Card")
 	unprotectedRoutes.HandleFunc("/{deckID:[0-9a-z]+}", getDeckListHandler).Methods(http.MethodGet).Name("Retrieve Info On Deck")
