@@ -75,7 +75,11 @@ func (dbInterface SKCDeckAPIDAOImplementation) GetDeckList(deckID string) (*mode
 		var dl model.DeckList
 		if err := deckListCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&dl); err != nil {
 			log.Printf("Error retrieving deck list w/ ID %s. Err: %v", deckID, err)
-			return nil, &model.APIError{Message: "Error retrieving deck", StatusCode: http.StatusNotFound}
+			if err.Error() == "mongo: no documents in result" {
+				return nil, &model.APIError{Message: "Deck w/ ID not found", StatusCode: http.StatusNotFound}
+			} else {
+				return nil, &model.APIError{Message: "Error retrieving deck", StatusCode: http.StatusInternalServerError}
+			}
 		} else {
 			return &dl, nil
 		}
