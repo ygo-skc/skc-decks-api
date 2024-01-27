@@ -46,25 +46,20 @@ type DeckListBreakdown struct {
 }
 
 func (dlb *DeckListBreakdown) Partition() {
-	dlb.MainDeck = []Card{}
-	dlb.ExtraDeck = []Card{}
-	numMainDeckCards := 0
-	numExtraDeckCards := 0
+	dlb.MainDeck, dlb.ExtraDeck = []Card{}, []Card{}
+	dlb.NumMainDeckCards, dlb.NumExtraDeckCards = 0, 0
 
 	for _, cardID := range dlb.CardIDs {
 		if _, isPresent := dlb.AllCards[cardID]; isPresent {
 			if dlb.AllCards[cardID].IsExtraDeckMonster() {
 				dlb.ExtraDeck = append(dlb.ExtraDeck, dlb.AllCards[cardID])
-				numExtraDeckCards += dlb.CardQuantity[cardID]
+				dlb.NumExtraDeckCards += dlb.CardQuantity[cardID]
 			} else {
 				dlb.MainDeck = append(dlb.MainDeck, dlb.AllCards[cardID])
-				numMainDeckCards += dlb.CardQuantity[cardID]
+				dlb.NumMainDeckCards += dlb.CardQuantity[cardID]
 			}
 		}
 	}
-
-	dlb.NumMainDeckCards = numMainDeckCards
-	dlb.NumExtraDeckCards = numExtraDeckCards
 }
 
 func (dlb *DeckListBreakdown) Sort() {

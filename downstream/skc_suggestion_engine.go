@@ -42,7 +42,7 @@ func FetchBatchCardInfo(cardIDs []string) (*model.BatchCardInfo, *model.APIError
 	var cardData model.BatchCardInfo
 	if err = json.NewDecoder(resp.Body).Decode(&cardData); err != nil && err != io.EOF {
 		log.Printf("Error occurred while deserializing output from Suggestion Engine. Operation: %s. Error %v", BATCH_CARD_INFO_OPERATION, err)
-		return nil, &model.APIError{Message: "Error fetching card info", StatusCode: http.StatusInternalServerError}
+		return nil, &model.APIError{Message: BATCH_CARD_INFO_ERROR, StatusCode: http.StatusInternalServerError}
 	}
 
 	return &cardData, nil

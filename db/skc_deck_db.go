@@ -66,8 +66,8 @@ func (dbInterface SKCDeckAPIDAOImplementation) InsertDeckList(deckList model.Dec
 
 func (dbInterface SKCDeckAPIDAOImplementation) GetDeckList(deckID string) (*model.DeckList, *model.APIError) {
 	if objectId, err := primitive.ObjectIDFromHex(deckID); err != nil {
-		log.Println("Invalid Object ID.")
-		return nil, &model.APIError{Message: "Object ID used for deck list was not valid.", StatusCode: http.StatusBadRequest}
+		log.Printf("Invalid deck ID used by user %s", deckID)
+		return nil, &model.APIError{Message: "Deck ID not valid", StatusCode: http.StatusBadRequest}
 	} else {
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
