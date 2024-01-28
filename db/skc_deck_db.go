@@ -23,7 +23,7 @@ var (
 type SKCDeckAPIDAO interface {
 	GetSKCDeckAPIDBVersion() (string, error)
 
-	InsertDeckList(deckList model.DeckList)
+	InsertDeckList(deckList model.DeckList) *model.APIError
 	GetDeckList(deckID string) (*model.DeckList, *model.APIError)
 	GetDecksThatFeatureCards([]string) (*[]model.DeckList, *model.APIError)
 }
@@ -47,7 +47,7 @@ func (dbInterface SKCDeckAPIDAOImplementation) GetSKCDeckAPIDBVersion() (string,
 	}
 }
 
-func (dbInterface SKCDeckAPIDAOImplementation) InsertDeckList(deckList model.DeckList) {
+func (dbInterface SKCDeckAPIDAOImplementation) InsertDeckList(deckList model.DeckList) *model.APIError {
 	deckList.CreatedAt = time.Now()
 	deckList.UpdatedAt = deckList.CreatedAt
 
@@ -58,9 +58,11 @@ func (dbInterface SKCDeckAPIDAOImplementation) InsertDeckList(deckList model.Dec
 	defer cancel()
 
 	if res, err := deckListCollection.InsertOne(ctx, deckList); err != nil {
-		log.Println("Error inserting new deck list into DB", err)
+		log.Println("Error saving new deck list into DB", err)
+		return &model.APIError{Message: "There was a problem saving deck list", StatusCode: http.StatusInternalServerError}
 	} else {
 		log.Println("Successfully inserted new deck list into DB, ID:", res.InsertedID)
+		return nil
 	}
 }
 
