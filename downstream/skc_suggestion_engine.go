@@ -26,7 +26,7 @@ func FetchBatchCardInfo(cardIDs []string) (*model.BatchCardInfo, *model.APIError
 	reqBody := new(bytes.Buffer)
 	json.NewEncoder(reqBody).Encode(model.BatchCardIDs{CardIDs: cardIDs})
 
-	if resp, err = http.Post(fmt.Sprintf("http://localhost:90%s", BATCH_CARD_INFO_ENDPOINT), "application/json", reqBody); err != nil {
+	if resp, err = http.Post(fmt.Sprintf("https://suggestions.skc-ygo-api.com%s", BATCH_CARD_INFO_ENDPOINT), "application/json", reqBody); err != nil {
 		log.Printf("There was an issue calling Suggestion Engine. Operation: %s. Error: %s", BATCH_CARD_INFO_OPERATION, err)
 		return nil, &model.APIError{Message: BATCH_CARD_INFO_ERROR, StatusCode: http.StatusInternalServerError}
 	} else {
