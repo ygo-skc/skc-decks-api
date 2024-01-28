@@ -29,12 +29,3 @@ func configureCustomValidators() {
 		return true
 	})
 }
-
-// validate deck list
-func Validate(dl model.DeckList) *ValidationErrors {
-	if err := V.Struct(dl); err != nil {
-		return handleValidationErrors(err.(validator.ValidationErrors))
-	} else {
-		return nil
-	}
-}
