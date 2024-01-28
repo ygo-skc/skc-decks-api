@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  skc-deck-api:
+    image: golang:1.21.6-bullseye
+    command: go run .
+    working_dir: /app
+    ports:
+      - "9010:9010"
+    volumes:
+      - "./:/app"
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 250m
+    networks:
+      - skc-network
+    environment:
+      - SKC_DECK_API_DOT_ENV_FILE=.env_docker_local
+
+networks:
+  skc-network:
+    name: skc-network
+    driver: bridge

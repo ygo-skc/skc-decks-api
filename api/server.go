@@ -98,8 +98,8 @@ func RunHttpServer() {
 
 // configure server to handle HTTPS (secured) calls
 func serveTLS(router *mux.Router, corsOpts *cors.Cors) {
-	log.Println("Starting server in port 9001 (secured)")
-	if err := http.ListenAndServeTLS(":9001", "certs/certificate.crt", "certs/private.key", corsOpts.Handler(router)); err != nil { // docker does not like localhost:9001 so im just using port number
+	log.Println("Starting server in port 9010 (secured)")
+	if err := http.ListenAndServeTLS(":9010", "certs/certificate.crt", "certs/private.key", corsOpts.Handler(router)); err != nil { // docker does not like localhost:9010 so im just using port number
 		log.Fatalf("There was an error starting api server: %s", err)
 	}
 }
