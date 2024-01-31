@@ -8,12 +8,12 @@ import (
 type CardIDs []string
 
 type BatchCardIDs struct {
-	CardIDs CardIDs `json:"cardIDs" validate:"required"`
+	CardIDs CardIDs `json:"cardIDs"`
 }
 
 type BatchCardInfo struct {
 	CardInfo       CardDataMap `json:"cardInfo"`
-	InvalidCardIDs CardIDs     `json:"invalidCardIDs"`
+	UnknownCardIDs CardIDs     `json:"unknownCardIDs"`
 }
 
 type Card struct {

@@ -14,7 +14,7 @@ import (
 const (
 	BATCH_CARD_INFO_ENDPOINT  = "/api/v1/suggestions/card-details"
 	BATCH_CARD_INFO_OPERATION = "Batch Card Info"
-	BATCH_CARD_INFO_ERROR     = "Error fetching card info"
+	BATCH_CARD_INFO_ERROR     = "There was an error fetching card info"
 )
 
 func FetchBatchCardInfo(cardIDs []string) (*model.BatchCardInfo, *model.APIError) {
