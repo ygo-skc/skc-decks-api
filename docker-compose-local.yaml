@@ -9,6 +9,7 @@ services:
       - "9010:9010"
     volumes:
       - "./:/app"
+      - "./certs/ca_bundle.crt:/etc/ssl/certs/zero-ssl-ca.crt" # trusting zer ssl CA cert in private network
     restart: always
     deploy:
       resources:
