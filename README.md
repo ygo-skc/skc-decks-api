@@ -15,7 +15,7 @@ Go API that provides various functionality related to Yugioh deck building and d
 In order for the API to work locally, do the following steps
 
 1. Run `go mod tidy` to download deps
-2. Execute the shell **script doppler-secrets-local-setup.sh** to download all the secrets. This will only work if you are logged into Doppler and have access to my org.
+2. Execute the shell script `aws-secrets-local-setup.sh` to download all the secrets. This will only work if you are logged into AWS and have access the secrets.
 
 ## Testing
 
