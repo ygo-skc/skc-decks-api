@@ -14,6 +14,10 @@ jq -r ".DB_PEM" < certs/base64-certs-json | base64 -d > certs/skc-deck-api-db.pe
 rm certs/base64-certs-json
 
 #############################################
+DB_HOST=$(aws secretsmanager get-secret-value --secret-id "/prod/skc/deck-api/db" --region us-east-2 \
+  | jq -r '.SecretString' \
+  | jq -c "with_entries(select(.key | startswith(\"DB_HOST\")))")
+
 aws secretsmanager get-secret-value --secret-id "/prod/skc/deck-api/env" --region us-east-2 \
-  | jq -r '.SecretString' | jq -r "to_entries|map(\"\(.key)=\\\"\(.value|tostring)\\\"\")|.[]" | tee .env .env_docker_local .env_prod
+  | jq -r '.SecretString' | jq -r ". + $DB_HOST | to_entries|map(\"\(.key)=\\\"\(.value|tostring)\\\"\")|.[]" | tee .env .env_docker_local .env_prod
 
