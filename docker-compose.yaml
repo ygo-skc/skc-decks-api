@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   skc-deck-api:
     image: golang:1.22.1-bullseye
