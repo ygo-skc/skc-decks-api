@@ -5,17 +5,6 @@ import (
 	"strings"
 )
 
-type CardIDs []string
-
-type BatchCardIDs struct {
-	CardIDs CardIDs `json:"cardIDs"`
-}
-
-type BatchCardInfo struct {
-	CardInfo       CardDataMap `json:"cardInfo"`
-	UnknownCardIDs CardIDs     `json:"unknownCardIDs"`
-}
-
 type Card struct {
 	CardID         string  `db:"card_number" json:"cardID"`
 	CardColor      string  `db:"card_color" json:"cardColor"`
@@ -39,5 +28,3 @@ func (cards Cards) SortCardsByName() {
 		return (cards)[i].CardName < (cards)[j].CardName
 	})
 }
-
-type CardDataMap map[string]Card

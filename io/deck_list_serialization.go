@@ -17,18 +17,18 @@ var (
 
 func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) {
 	var dlb model.DeckListBreakdown
-	var cardData *model.BatchCardInfo
+	var cardData *model.BatchCardData[model.CardIDs]
 	var err *model.APIError
 
 	if dlb, err = transformDeckListStringToMap(dl); err != nil {
 		return nil, err
 	}
 
-	if cardData, err = downstream.FetchBatchCardInfo(dlb.CardIDs); err != nil {
+	if cardData, err = downstream.FetchBatchCardData(dlb.CardIDs); err != nil {
 		return nil, err
 	} else {
 		dlb.AllCards = cardData.CardInfo
-		dlb.InvalidIDs = cardData.UnknownCardIDs
+		dlb.InvalidIDs = cardData.UnknownResources
 
 		dlb.Partition()
 		dlb.Sort()
