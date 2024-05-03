@@ -1,18 +1,21 @@
 services:
   skc-deck-api:
-    image: golang:1.22.2-bullseye
-    command: go run .
+    image: alpine:latest
+    command: ./skc-deck-api
     working_dir: /app
     ports:
       - "9010:9010"
     volumes:
-      - "./:/app"
+      - "./skc-deck-api:/app/skc-deck-api"
+      - "./certs/:/app/certs/"
+      - "./.env_docker_local:/app/.env_docker_local"
+      - "/usr/share/zoneinfo/:/usr/share/zoneinfo/"
       - "./certs/ca_bundle.crt:/etc/ssl/certs/zero-ssl-ca.crt" # trusting zer ssl CA cert in private network
     restart: always
     deploy:
       resources:
         limits:
-          memory: 250m
+          memory: 75m
     networks:
       - skc-network
     environment:
