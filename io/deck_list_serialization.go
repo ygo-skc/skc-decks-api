@@ -1,7 +1,8 @@
 package io
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -9,22 +10,23 @@ import (
 
 	"github.com/ygo-skc/skc-deck-api/downstream"
 	"github.com/ygo-skc/skc-deck-api/model"
+	"github.com/ygo-skc/skc-deck-api/util"
 )
 
 var (
 	deckListCardAndQuantityRegex = regexp.MustCompile("[1-3][xX][0-9]{8}")
 )
 
-func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) {
+func DeserializeDeckList(ctx context.Context, dl string) (*model.DeckListBreakdown, *model.APIError) {
 	var dlb model.DeckListBreakdown
 	var cardData *model.BatchCardData[model.CardIDs]
 	var err *model.APIError
 
-	if dlb, err = transformDeckListStringToMap(dl); err != nil {
+	if dlb, err = transformDeckListStringToMap(ctx, dl); err != nil {
 		return nil, err
 	}
 
-	if cardData, err = downstream.FetchBatchCardData(dlb.CardIDs); err != nil {
+	if cardData, err = downstream.FetchBatchCardData(ctx, dlb.CardIDs); err != nil {
 		return nil, err
 	} else {
 		dlb.AllCards = cardData.CardInfo
@@ -38,7 +40,8 @@ func DeserializeDeckList(dl string) (*model.DeckListBreakdown, *model.APIError) 
 
 // Transforms decoded deck list into a map that can be parsed easier.
 // The map will use the cardID as key and number of copies in the deck as value.
-func transformDeckListStringToMap(list string) (model.DeckListBreakdown, *model.APIError) {
+func transformDeckListStringToMap(ctx context.Context, list string) (model.DeckListBreakdown, *model.APIError) {
+	logger := util.LoggerFromContext(ctx)
 	tokens := deckListCardAndQuantityRegex.FindAllString(list, -1)
 
 	cardCopiesInDeck := map[string]int{}
@@ -49,8 +52,11 @@ func transformDeckListStringToMap(list string) (model.DeckListBreakdown, *model.
 		cardID := splitToken[1]
 
 		if _, isPresent := cardCopiesInDeck[cardID]; isPresent {
-			log.Printf("Deck list contains multiple instances of the same card {%s}.", cardID)
-			return model.DeckListBreakdown{}, &model.APIError{Message: "Deck list contains multiple instance of same card. Make sure a cardID appears only once in the deck list.", StatusCode: http.StatusBadRequest}
+			logger.Info(
+				fmt.Sprintf("Deck list contains multiple instances of the same card {%s}.", cardID))
+			return model.DeckListBreakdown{}, &model.APIError{
+				Message:    "Deck list contains multiple instance of same card. Make sure a cardID appears only once in the deck list.",
+				StatusCode: http.StatusBadRequest}
 		}
 		cardCopiesInDeck[cardID] = quantity
 		cards = append(cards, cardID)

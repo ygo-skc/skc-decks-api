@@ -1,11 +1,12 @@
 package model
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
+	"github.com/ygo-skc/skc-deck-api/util"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -101,7 +102,7 @@ func formattedLine(card Card, quantity int) string {
 	return fmt.Sprintf("%dx%s|%s\n", quantity, card.CardID, card.CardName)
 }
 
-func (dlb DeckListBreakdown) Validate() *APIError {
+func (dlb DeckListBreakdown) Validate(ctx context.Context) *APIError {
 	var msg = ""
 
 	if len(dlb.InvalidIDs) > 0 {
@@ -119,7 +120,7 @@ func (dlb DeckListBreakdown) Validate() *APIError {
 	}
 
 	if msg != "" {
-		log.Println(msg)
+		util.LoggerFromContext(ctx).Error(msg)
 		return &APIError{Message: msg, StatusCode: http.StatusBadRequest}
 	} else {
 		return nil

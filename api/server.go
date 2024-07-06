@@ -4,6 +4,7 @@ package api
 import (
 	"encoding/json"
 	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -27,7 +28,7 @@ func verifyApiKey(headers http.Header) *model.APIError {
 	clientKey := headers.Get("API-Key")
 
 	if clientKey != serverAPIKey {
-		log.Println("Client is using incorrect API Key. Cannot process request.")
+		slog.Error("Client is using incorrect API Key. Cannot process request.")
 		return &model.APIError{Message: "Request has incorrect or missing API Key."}
 	}
 
@@ -98,7 +99,7 @@ func RunHttpServer() {
 
 // configure server to handle HTTPS (secured) calls
 func serveTLS(router *mux.Router, corsOpts *cors.Cors) {
-	log.Println("Starting server in port 9010 (secured)")
+	slog.Debug("Starting server in port 9010 (secured)")
 	if err := http.ListenAndServeTLS(":9010", "certs/certificate.crt", "certs/private.key", corsOpts.Handler(router)); err != nil { // docker does not like localhost:9010 so im just using port number
 		log.Fatalf("There was an error starting api server: %s", err)
 	}
@@ -106,7 +107,7 @@ func serveTLS(router *mux.Router, corsOpts *cors.Cors) {
 
 // configure server to handle HTTPs (un-secured) calls
 func serveUnsecured(router *mux.Router, corsOpts *cors.Cors) {
-	log.Println("Starting server in port 91 (unsecured)")
+	slog.Debug("Starting server in port 91 (unsecured)")
 	if err := http.ListenAndServe(":91", corsOpts.Handler(router)); err != nil {
 		log.Fatalf("There was an error starting api server: %s", err)
 	}

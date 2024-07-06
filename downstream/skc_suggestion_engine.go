@@ -2,13 +2,14 @@ package downstream
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/ygo-skc/skc-deck-api/model"
+	"github.com/ygo-skc/skc-deck-api/util"
 )
 
 const (
@@ -17,8 +18,9 @@ const (
 	BATCH_CARD_INFO_ERROR     = "There was an error fetching card info"
 )
 
-func FetchBatchCardData(cardIDs []string) (*model.BatchCardData[model.CardIDs], *model.APIError) {
-	log.Printf("Fetching card info for the following IDs: %v", cardIDs)
+func FetchBatchCardData(ctx context.Context, cardIDs []string) (*model.BatchCardData[model.CardIDs], *model.APIError) {
+	logger := util.LoggerFromContext(ctx)
+	logger.Info(fmt.Sprintf("Fetching card info for the following IDs: %v", cardIDs))
 
 	var resp *http.Response
 	var err error
@@ -26,8 +28,11 @@ func FetchBatchCardData(cardIDs []string) (*model.BatchCardData[model.CardIDs], 
 	reqBody := new(bytes.Buffer)
 	json.NewEncoder(reqBody).Encode(model.BatchCardIDs{CardIDs: cardIDs})
 
-	if resp, err = suggestionEngineClient.Post(fmt.Sprintf("https://skc-suggestion-engine:9000%s", BATCH_CARD_INFO_ENDPOINT), "application/json", reqBody); err != nil {
-		log.Printf("There was an issue calling Suggestion Engine. Operation: %s. Error: %s", BATCH_CARD_INFO_OPERATION, err)
+	if resp, err = suggestionEngineClient.Post(
+		fmt.Sprintf("https://skc-suggestion-engine:9000%s", BATCH_CARD_INFO_ENDPOINT), "application/json", reqBody); err != nil {
+		logger.Error(
+			fmt.Sprintf("There was an issue calling Suggestion Engine. Operation: %s. Error: %s",
+				BATCH_CARD_INFO_OPERATION, err))
 		return nil, &model.APIError{Message: BATCH_CARD_INFO_ERROR, StatusCode: http.StatusInternalServerError}
 	} else {
 		defer resp.Body.Close()
@@ -35,13 +40,17 @@ func FetchBatchCardData(cardIDs []string) (*model.BatchCardData[model.CardIDs], 
 
 	if resp.StatusCode != http.StatusOK {
 		s, _ := io.ReadAll(resp.Body)
-		log.Printf("Suggestion Engine returned with non 200 status. Operation: %s. Body: %s. Code: %d", BATCH_CARD_INFO_OPERATION, string(s), resp.StatusCode)
+		logger.Error(
+			fmt.Sprintf("Suggestion Engine returned with non 200 status. Operation: %s. Body: %s. Code: %d",
+				BATCH_CARD_INFO_OPERATION, string(s), resp.StatusCode))
 		return nil, &model.APIError{Message: BATCH_CARD_INFO_ERROR, StatusCode: http.StatusInternalServerError}
 	}
 
 	var cardData model.BatchCardData[model.CardIDs]
 	if err = json.NewDecoder(resp.Body).Decode(&cardData); err != nil && err != io.EOF {
-		log.Printf("Error occurred while deserializing output from Suggestion Engine. Operation: %s. Error %v", BATCH_CARD_INFO_OPERATION, err)
+		logger.Error(
+			fmt.Sprintf("Error occurred while deserializing output from Suggestion Engine. Operation: %s. Error %v",
+				BATCH_CARD_INFO_OPERATION, err))
 		return nil, &model.APIError{Message: BATCH_CARD_INFO_ERROR, StatusCode: http.StatusInternalServerError}
 	}
 

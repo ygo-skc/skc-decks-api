@@ -25,3 +25,15 @@ func NewRequestSetup(ctx context.Context, operation string, customAttributes ...
 	l := slog.With(defaults...)
 	return l, context.WithValue(ctx, loggerKey, l)
 }
+
+func AddAttribute(ctx context.Context, customAttributes ...slog.Attr) (*slog.Logger, context.Context) {
+	newAttributes := []any{}
+
+	for _, customAttribute := range customAttributes {
+		newAttributes = append(newAttributes, customAttribute)
+	}
+
+	l := LoggerFromContext(ctx)
+	l = l.With(newAttributes...)
+	return l, context.WithValue(ctx, loggerKey, l)
+}

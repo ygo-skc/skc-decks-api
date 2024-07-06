@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"log"
+	"log/slog"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/ygo-skc/skc-deck-api/model"
@@ -18,10 +18,10 @@ func configureCustomValidators() {
 
 		for ind, mascot := range mascots {
 			if ind == 3 { // size constraint fails
-				log.Println("Deck Mascot array failed size constraint.")
+				slog.Error("Deck Mascot array failed size constraint.")
 				return false
 			} else if len(cardIDRegex.FindAllString(mascot, -1)) == 0 { // regex constraint
-				log.Println("Deck Mascot ID not in proper format.")
+				slog.Error("Deck Mascot ID not in proper format.")
 				return false
 			}
 		}

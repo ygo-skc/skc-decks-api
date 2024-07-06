@@ -1,24 +1,29 @@
 package api
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
-	"log"
+	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/ygo-skc/skc-deck-api/io"
 	"github.com/ygo-skc/skc-deck-api/model"
+	"github.com/ygo-skc/skc-deck-api/util"
 )
 
 func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	pathVars := mux.Vars(req)
 	deckID := pathVars["deckID"]
-	log.Println("Getting content for deck w/ ID:", deckID)
+
+	logger, ctx := util.NewRequestSetup(context.Background(), "retrieve deck list", slog.String("deckID", deckID))
+	logger.Info(fmt.Sprintf("Getting content for deck w/ ID %s", deckID))
 
 	var deckList *model.DeckList
 	var err *model.APIError
-	if deckList, err = skcDeckAPIDBInterface.GetDeckList(deckID); err != nil {
+	if deckList, err = skcDeckAPIDBInterface.GetDeckList(ctx, deckID); err != nil {
 		err.HandleServerResponse(res)
 		return
 	}
@@ -27,14 +32,14 @@ func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	decodedList := string(decodedListBytes) // decoded string of list contents
 
 	var deckListBreakdown *model.DeckListBreakdown
-	if deckListBreakdown, err = io.DeserializeDeckList(decodedList); err != nil {
+	if deckListBreakdown, err = io.DeserializeDeckList(ctx, decodedList); err != nil {
 		err.HandleServerResponse(res)
 		return
 	}
 	deckList.MainDeck, deckList.ExtraDeck = deckListBreakdown.GetQuantities()
 
-	log.Printf("Successfully retrieved deck list. Name {%s} and encoded deck list content {%s}. This deck list has {%d} main deck cards and {%d} extra deck cards.",
-		deckList.Name, deckList.ContentB64, deckList.NumMainDeckCards, deckList.NumExtraDeckCards)
+	logger.Info(fmt.Sprintf("Successfully retrieved deck list. Name {%s} and encoded deck list content {%s}. This deck list has {%d} main deck cards and {%d} extra deck cards.",
+		deckList.Name, deckList.ContentB64, deckList.NumMainDeckCards, deckList.NumExtraDeckCards))
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(deckList)
 }
@@ -42,11 +47,13 @@ func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 func getDecksFeaturingCardHandler(res http.ResponseWriter, req *http.Request) {
 	pathVars := mux.Vars(req)
 	cardID := pathVars["cardID"]
-	log.Printf("Getting decks that use card w/ ID: %s", cardID)
+
+	logger, ctx := util.NewRequestSetup(context.Background(), "retrieve deck featuring card", slog.String("cardID", cardID))
+	logger.Info("Fetching decks that feature card")
 
 	suggestedDecks := model.SuggestedDecks{}
 
-	suggestedDecks.FeaturedIn, _ = skcDeckAPIDBInterface.GetDecksThatFeatureCards([]string{cardID})
+	suggestedDecks.FeaturedIn, _ = skcDeckAPIDBInterface.GetDecksThatFeatureCards(ctx, []string{cardID})
 
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(suggestedDecks)

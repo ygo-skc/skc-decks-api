@@ -1,26 +1,31 @@
 package api
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
-	"log"
+	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/ygo-skc/skc-deck-api/io"
 	"github.com/ygo-skc/skc-deck-api/model"
+	"github.com/ygo-skc/skc-deck-api/util"
 	"github.com/ygo-skc/skc-deck-api/validation"
 )
 
 func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
+	logger, ctx := util.NewRequestSetup(context.Background(), "submit new deck list")
 	var deckList model.DeckList
 
 	if err := json.NewDecoder(req.Body).Decode(&deckList); err != nil {
-		log.Println("Error occurred while reading submitNewDeckListHandler request body.")
+		logger.Error("Error occurred while reading submitNewDeckListHandler request body.")
 		model.HandleServerResponse(model.APIError{Message: "Body could not be deserialized.", StatusCode: http.StatusUnprocessableEntity}, res)
 		return
 	}
 
-	log.Printf("Client attempting to submit new deck with name {%s} and with list contents (in base64) {%s}", deckList.Name, deckList.ContentB64)
+	logger, ctx = util.AddAttribute(ctx, slog.String("deckName", deckList.Name))
+	logger.Info(fmt.Sprintf("Client attempting to submit new deck with list contents (in base64) {%s}", deckList.ContentB64))
 
 	// object validation
 	if err := validation.Validate(deckList); err != nil {
@@ -33,14 +38,14 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	decodedList := string(decodedListBytes) // decoded string of list contents
 
 	var deckListBreakdown model.DeckListBreakdown
-	if dlb, err := io.DeserializeDeckList(decodedList); err != nil {
+	if dlb, err := io.DeserializeDeckList(ctx, decodedList); err != nil {
 		err.HandleServerResponse(res)
 		return
 	} else {
 		deckListBreakdown = *dlb
 	}
 
-	if err := deckListBreakdown.Validate(); err != nil {
+	if err := deckListBreakdown.Validate(ctx); err != nil {
 		err.HandleServerResponse(res)
 		return
 	}
@@ -51,7 +56,7 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	deckList.NumMainDeckCards = deckListBreakdown.NumMainDeckCards
 	deckList.NumExtraDeckCards = deckListBreakdown.NumExtraDeckCards
 
-	if err := skcDeckAPIDBInterface.InsertDeckList(deckList); err != nil {
+	if err := skcDeckAPIDBInterface.InsertDeckList(ctx, deckList); err != nil {
 		err.HandleServerResponse(res)
 	} else {
 		json.NewEncoder(res).Encode(model.Success{Message: "Successfully inserted new deck list: " + deckList.Name})
