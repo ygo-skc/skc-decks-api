@@ -10,7 +10,7 @@ services:
       - "./certs/:/app/certs/"
       - "./.env_prod:/app/.env_prod"
       - "/usr/share/zoneinfo/:/usr/share/zoneinfo/"
-      - "./certs/ca_bundle.crt:/etc/ssl/certs/zero-ssl-ca.crt" # trusting zer ssl CA cert in private network
+      - "./certs/ca_bundle.crt:/etc/ssl/certs/zero-ssl-ca.crt" # trusting zero ssl CA cert in private network
     restart: always
     deploy:
       resources:
