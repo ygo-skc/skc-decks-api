@@ -8,6 +8,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -100,7 +101,7 @@ func RunHttpServer() {
 
 	// Cors
 	corsOpts := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000", "http://dev.thesupremekingscastle.com", "https://dev.thesupremekingscastle.com", "https://thesupremekingscastle.com", "https://www.thesupremekingscastle.com"},
+		AllowedOrigins: []string{"http://localhost:3000", "https://dev.thesupremekingscastle.com", "https://thesupremekingscastle.com", "https://www.thesupremekingscastle.com"},
 		AllowedMethods: []string{
 			http.MethodGet,
 			http.MethodPost,
@@ -113,23 +114,24 @@ func RunHttpServer() {
 		},
 	})
 
-	go serveTLS(router, corsOpts)
-	serveUnsecured(router, corsOpts)
+	serveTLS(router, corsOpts)
 }
 
 // configure server to handle HTTPS (secured) calls
 func serveTLS(router *mux.Router, corsOpts *cors.Cors) {
 	slog.Debug("Starting server in port 9010 (secured)")
-	if err := http.ListenAndServeTLS(":9010", "certs/certificate.crt", "certs/private.key", corsOpts.Handler(router)); err != nil { // docker does not like localhost:9010 so im just using port number
-		log.Fatalf("There was an error starting api server: %s", err)
-	}
-}
 
-// configure server to handle HTTPs (un-secured) calls
-func serveUnsecured(router *mux.Router, corsOpts *cors.Cors) {
-	slog.Debug("Starting server in port 91 (unsecured)")
-	if err := http.ListenAndServe(":91", corsOpts.Handler(router)); err != nil {
-		log.Fatalf("There was an error starting api server: %s", err)
+	combinedFile := "certs/concatenated.crt"
+	if certData, err := os.ReadFile("certs/certificate.crt"); err != nil {
+		log.Fatalf("Failed to read certificate file: %s", err)
+	} else if caBundleData, err := os.ReadFile("certs/ca_bundle.crt"); err != nil {
+		log.Fatalf("Failed to read CA bundle file: %s", err)
+	} else {
+		if err = os.WriteFile(combinedFile, append(certData, caBundleData...), 0600); err != nil {
+			log.Fatalf("Failed to write combined certificate file: %s", err)
+		} else if err := http.ListenAndServeTLS(":9010", combinedFile, "certs/private.key", corsOpts.Handler(router)); err != nil {
+			log.Fatalf("There was an error starting api server: %s", err)
+		}
 	}
 }
 

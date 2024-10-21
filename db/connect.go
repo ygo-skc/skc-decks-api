@@ -13,7 +13,7 @@ import (
 
 const (
 	minPoolSize = 20
-	maxPoolSize = 40
+	maxPoolSize = 30
 )
 
 // connects to Deck API database

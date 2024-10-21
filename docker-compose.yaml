@@ -10,7 +10,7 @@ services:
       - "./certs/:/app/certs/"
       - "./.env_prod:/app/.env_prod"
       - "/usr/share/zoneinfo/:/usr/share/zoneinfo/"
-      - "./certs/ca_bundle.crt:/etc/ssl/certs/zero-ssl-ca.crt" # trusting zero ssl CA cert in private network
+      - "./certs/ca_bundle.crt:/etc/ssl/certs/zero-ssl-ca.crt" # trusting zero ssl CA cert in private network. Though its not needed anymore since the golang app will send the CA Bundle, it is still nice to have for reference
     restart: always
     deploy:
       resources:
