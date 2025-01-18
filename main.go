@@ -7,5 +7,6 @@ import (
 
 func main() {
 	db.EstablishSKCDeckAPIDBConn()
-	api.RunHttpServer()
+	go api.RunHttpServer()
+	select {}
 }
