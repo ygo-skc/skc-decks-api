@@ -1,14 +1,15 @@
 package db
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/ygo-skc/skc-deck-api/util"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readconcern"
+	"go.mongodb.org/mongo-driver/v2/mongo/writeconcern"
 )
 
 const (
@@ -25,12 +26,14 @@ func EstablishSKCDeckAPIDBConn() {
 		AuthMechanism: "MONGODB-X509",
 	}
 
-	if client, err := mongo.Connect(context.TODO(), options.Client().
+	if client, err := mongo.Connect(options.Client().
 		ApplyURI(uri).
 		SetAuth(credential).
-		SetMinPoolSize(minPoolSize).
 		SetMaxPoolSize(maxPoolSize).
-		SetMaxConnIdleTime(10*time.Minute).
+		SetMaxConnIdleTime(10 * time.Minute).
+		SetTimeout(2 * time.Second).
+		SetReadConcern(readconcern.Majority()).   // prefer strongly consistent reeds
+		SetWriteConcern(writeconcern.Majority()). // writes to most replicas before acknowledging the write is complete
 		SetAppName("SKC Deck API")); err != nil {
 		log.Fatalln("Error creating new mongodb client for skc-deck-api-db", err)
 	} else {

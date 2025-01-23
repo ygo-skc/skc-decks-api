@@ -8,10 +8,9 @@ import (
 
 	"github.com/ygo-skc/skc-deck-api/model"
 	"github.com/ygo-skc/skc-deck-api/util"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 var (
@@ -75,7 +74,7 @@ func (dbInterface SKCDeckAPIDAOImplementation) InsertDeckList(ctx context.Contex
 func (dbInterface SKCDeckAPIDAOImplementation) GetDeckList(ctx context.Context, deckID string) (*model.DeckList, *model.APIError) {
 	logger := util.LoggerFromContext(ctx)
 
-	if objectId, err := primitive.ObjectIDFromHex(deckID); err != nil {
+	if objectId, err := bson.ObjectIDFromHex(deckID); err != nil {
 		logger.Error("Error retrieving deck from DB - nvalid deck ID")
 		return nil, &model.APIError{Message: "Deck ID not valid", StatusCode: http.StatusBadRequest}
 	} else {

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/ygo-skc/skc-deck-api/util"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type SuggestedDecks struct {
@@ -15,19 +15,19 @@ type SuggestedDecks struct {
 }
 
 type DeckList struct {
-	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name              string             `bson:"name" json:"name" validate:"required,decklistname"`
-	ContentB64        string             `bson:"content" json:"content" validate:"required,base64"`
-	VideoUrl          string             `bson:"videoUrl" json:"videoUrl" validate:"omitempty,url"`
-	UniqueCards       CardIDs            `bson:"uniqueCards" json:"uniqueCards" validate:"omitempty"`
-	DeckMascots       CardIDs            `bson:"deckMascots" json:"deckMascots" validate:"omitempty,deckmascots"`
-	NumMainDeckCards  int                `bson:"numMainDeckCards" json:"numMainDeckCards"`
-	NumExtraDeckCards int                `bson:"numExtraDeckCards" json:"numExtraDeckCards"`
-	Tags              []string           `bson:"tags" json:"tags" validate:"required"`
-	CreatedAt         time.Time          `bson:"createdAt" json:"createdAt"`
-	UpdatedAt         time.Time          `bson:"updatedAt" json:"updatedAt"`
-	MainDeck          []Content          `bson:"mainDeck,omitempty" json:"mainDeck,omitempty"`
-	ExtraDeck         []Content          `bson:"extraDeck,omitempty" json:"extraDeck,omitempty"`
+	ID                bson.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name              string        `bson:"name" json:"name" validate:"required,decklistname"`
+	ContentB64        string        `bson:"content" json:"content" validate:"required,base64"`
+	VideoUrl          string        `bson:"videoUrl" json:"videoUrl" validate:"omitempty,url"`
+	UniqueCards       CardIDs       `bson:"uniqueCards" json:"uniqueCards" validate:"omitempty"`
+	DeckMascots       CardIDs       `bson:"deckMascots" json:"deckMascots" validate:"omitempty,deckmascots"`
+	NumMainDeckCards  int           `bson:"numMainDeckCards" json:"numMainDeckCards"`
+	NumExtraDeckCards int           `bson:"numExtraDeckCards" json:"numExtraDeckCards"`
+	Tags              []string      `bson:"tags" json:"tags" validate:"required"`
+	CreatedAt         time.Time     `bson:"createdAt" json:"createdAt"`
+	UpdatedAt         time.Time     `bson:"updatedAt" json:"updatedAt"`
+	MainDeck          []Content     `bson:"mainDeck,omitempty" json:"mainDeck,omitempty"`
+	ExtraDeck         []Content     `bson:"extraDeck,omitempty" json:"extraDeck,omitempty"`
 }
 
 type Content struct {
