@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ygo-skc/skc-deck-api/util"
+	cModel "github.com/ygo-skc/skc-go/common/model"
+	cUtil "github.com/ygo-skc/skc-go/common/util"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
@@ -15,39 +16,39 @@ type SuggestedDecks struct {
 }
 
 type DeckList struct {
-	ID                bson.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name              string        `bson:"name" json:"name" validate:"required,decklistname"`
-	ContentB64        string        `bson:"content" json:"content" validate:"required,base64"`
-	VideoUrl          string        `bson:"videoUrl" json:"videoUrl" validate:"omitempty,url"`
-	UniqueCards       CardIDs       `bson:"uniqueCards" json:"uniqueCards" validate:"omitempty"`
-	DeckMascots       CardIDs       `bson:"deckMascots" json:"deckMascots" validate:"omitempty,deckmascots"`
-	NumMainDeckCards  int           `bson:"numMainDeckCards" json:"numMainDeckCards"`
-	NumExtraDeckCards int           `bson:"numExtraDeckCards" json:"numExtraDeckCards"`
-	Tags              []string      `bson:"tags" json:"tags" validate:"required"`
-	CreatedAt         time.Time     `bson:"createdAt" json:"createdAt"`
-	UpdatedAt         time.Time     `bson:"updatedAt" json:"updatedAt"`
-	MainDeck          []Content     `bson:"mainDeck,omitempty" json:"mainDeck,omitempty"`
-	ExtraDeck         []Content     `bson:"extraDeck,omitempty" json:"extraDeck,omitempty"`
+	ID                bson.ObjectID  `bson:"_id,omitempty" json:"id"`
+	Name              string         `bson:"name" json:"name" validate:"required,decklistname"`
+	ContentB64        string         `bson:"content" json:"content" validate:"required,base64"`
+	VideoUrl          string         `bson:"videoUrl" json:"videoUrl" validate:"omitempty,url"`
+	UniqueCards       cModel.CardIDs `bson:"uniqueCards" json:"uniqueCards" validate:"omitempty"`
+	DeckMascots       cModel.CardIDs `bson:"deckMascots" json:"deckMascots" validate:"omitempty,deckmascots"`
+	NumMainDeckCards  int            `bson:"numMainDeckCards" json:"numMainDeckCards"`
+	NumExtraDeckCards int            `bson:"numExtraDeckCards" json:"numExtraDeckCards"`
+	Tags              []string       `bson:"tags" json:"tags" validate:"required"`
+	CreatedAt         time.Time      `bson:"createdAt" json:"createdAt"`
+	UpdatedAt         time.Time      `bson:"updatedAt" json:"updatedAt"`
+	MainDeck          []Content      `bson:"mainDeck,omitempty" json:"mainDeck,omitempty"`
+	ExtraDeck         []Content      `bson:"extraDeck,omitempty" json:"extraDeck,omitempty"`
 }
 
 type Content struct {
-	Quantity int  `bson:"omitempty" json:"quantity"`
-	Card     Card `bson:"omitempty" json:"card"`
+	Quantity int         `bson:"omitempty" json:"quantity"`
+	Card     cModel.Card `bson:"omitempty" json:"card"`
 }
 
 type DeckListBreakdown struct {
 	CardQuantity      map[string]int
-	CardIDs           CardIDs
-	InvalidIDs        CardIDs
-	AllCards          CardDataMap
-	MainDeck          Cards
-	ExtraDeck         Cards
+	CardIDs           cModel.CardIDs
+	InvalidIDs        cModel.CardIDs
+	AllCards          cModel.CardDataMap
+	MainDeck          cModel.Cards
+	ExtraDeck         cModel.Cards
 	NumMainDeckCards  int
 	NumExtraDeckCards int
 }
 
 func (dlb *DeckListBreakdown) Partition() {
-	dlb.MainDeck, dlb.ExtraDeck = []Card{}, []Card{}
+	dlb.MainDeck, dlb.ExtraDeck = []cModel.Card{}, []cModel.Card{}
 	dlb.NumMainDeckCards, dlb.NumExtraDeckCards = 0, 0
 
 	for _, cardID := range dlb.CardIDs {
@@ -98,11 +99,11 @@ func (dlb DeckListBreakdown) ListStringCleanup() string {
 	return formattedDLS
 }
 
-func formattedLine(card Card, quantity int) string {
+func formattedLine(card cModel.Card, quantity int) string {
 	return fmt.Sprintf("%dx%s|%s\n", quantity, card.CardID, card.CardName)
 }
 
-func (dlb DeckListBreakdown) Validate(ctx context.Context) *APIError {
+func (dlb DeckListBreakdown) Validate(ctx context.Context) *cModel.APIError {
 	var msg = ""
 
 	if len(dlb.InvalidIDs) > 0 {
@@ -120,8 +121,8 @@ func (dlb DeckListBreakdown) Validate(ctx context.Context) *APIError {
 	}
 
 	if msg != "" {
-		util.LoggerFromContext(ctx).Error(msg)
-		return &APIError{Message: msg, StatusCode: http.StatusBadRequest}
+		cUtil.LoggerFromContext(ctx).Error(msg)
+		return &cModel.APIError{Message: msg, StatusCode: http.StatusBadRequest}
 	} else {
 		return nil
 	}

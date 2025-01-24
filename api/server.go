@@ -14,8 +14,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/ygo-skc/skc-deck-api/db"
-	"github.com/ygo-skc/skc-deck-api/model"
 	"github.com/ygo-skc/skc-deck-api/util"
+	cModel "github.com/ygo-skc/skc-go/common/model"
 )
 
 const (
@@ -37,12 +37,12 @@ func (w gzipResponseWriter) Write(b []byte) (int, error) {
 }
 
 // verifies API Key from request header is the correct API Key
-func verifyApiKey(headers http.Header) *model.APIError {
+func verifyApiKey(headers http.Header) *cModel.APIError {
 	clientKey := headers.Get("API-Key")
 
 	if clientKey != serverAPIKey {
 		slog.Error("Client is using incorrect API Key. Cannot process request.")
-		return &model.APIError{Message: "Request has incorrect or missing API Key."}
+		return &cModel.APIError{Message: "Request has incorrect or missing API Key."}
 	}
 
 	return nil

@@ -10,17 +10,18 @@ import (
 
 	"github.com/ygo-skc/skc-deck-api/downstream"
 	"github.com/ygo-skc/skc-deck-api/model"
-	"github.com/ygo-skc/skc-deck-api/util"
+	cModel "github.com/ygo-skc/skc-go/common/model"
+	cUtil "github.com/ygo-skc/skc-go/common/util"
 )
 
 var (
 	deckListCardAndQuantityRegex = regexp.MustCompile("[1-3][xX][0-9]{8}")
 )
 
-func DeserializeDeckList(ctx context.Context, dl string) (*model.DeckListBreakdown, *model.APIError) {
+func DeserializeDeckList(ctx context.Context, dl string) (*model.DeckListBreakdown, *cModel.APIError) {
 	var dlb model.DeckListBreakdown
-	var cardData *model.BatchCardData[model.CardIDs]
-	var err *model.APIError
+	var cardData *cModel.BatchCardData[cModel.CardIDs]
+	var err *cModel.APIError
 
 	if dlb, err = transformDeckListStringToMap(ctx, dl); err != nil {
 		return nil, err
@@ -40,8 +41,8 @@ func DeserializeDeckList(ctx context.Context, dl string) (*model.DeckListBreakdo
 
 // Transforms decoded deck list into a map that can be parsed easier.
 // The map will use the cardID as key and number of copies in the deck as value.
-func transformDeckListStringToMap(ctx context.Context, list string) (model.DeckListBreakdown, *model.APIError) {
-	logger := util.LoggerFromContext(ctx)
+func transformDeckListStringToMap(ctx context.Context, list string) (model.DeckListBreakdown, *cModel.APIError) {
+	logger := cUtil.LoggerFromContext(ctx)
 	tokens := deckListCardAndQuantityRegex.FindAllString(list, -1)
 
 	cardCopiesInDeck := map[string]int{}
@@ -54,7 +55,7 @@ func transformDeckListStringToMap(ctx context.Context, list string) (model.DeckL
 		if _, isPresent := cardCopiesInDeck[cardID]; isPresent {
 			logger.Info(
 				fmt.Sprintf("Deck list contains multiple instances of the same card {%s}.", cardID))
-			return model.DeckListBreakdown{}, &model.APIError{
+			return model.DeckListBreakdown{}, &cModel.APIError{
 				Message:    "Deck list contains multiple instance of same card. Make sure a cardID appears only once in the deck list.",
 				StatusCode: http.StatusBadRequest}
 		}

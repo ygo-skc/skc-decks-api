@@ -11,18 +11,19 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/ygo-skc/skc-deck-api/io"
 	"github.com/ygo-skc/skc-deck-api/model"
-	"github.com/ygo-skc/skc-deck-api/util"
+	cModel "github.com/ygo-skc/skc-go/common/model"
+	cUtil "github.com/ygo-skc/skc-go/common/util"
 )
 
 func getDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	pathVars := mux.Vars(req)
 	deckID := pathVars["deckID"]
 
-	logger, ctx := util.NewRequestSetup(context.Background(), "retrieve deck list", slog.String("deckID", deckID))
+	logger, ctx := cUtil.NewRequestSetup(context.Background(), "retrieve deck list", slog.String("deckID", deckID))
 	logger.Info(fmt.Sprintf("Getting content for deck w/ ID %s", deckID))
 
 	var deckList *model.DeckList
-	var err *model.APIError
+	var err *cModel.APIError
 	if deckList, err = skcDeckAPIDBInterface.GetDeckList(ctx, deckID); err != nil {
 		err.HandleServerResponse(res)
 		return
@@ -48,7 +49,7 @@ func getDecksFeaturingCardHandler(res http.ResponseWriter, req *http.Request) {
 	pathVars := mux.Vars(req)
 	cardID := pathVars["cardID"]
 
-	logger, ctx := util.NewRequestSetup(context.Background(), "retrieve deck featuring card", slog.String("cardID", cardID))
+	logger, ctx := cUtil.NewRequestSetup(context.Background(), "retrieve deck featuring card", slog.String("cardID", cardID))
 	logger.Info("Fetching decks that feature card")
 
 	suggestedDecks := model.SuggestedDecks{}

@@ -10,21 +10,22 @@ import (
 
 	"github.com/ygo-skc/skc-deck-api/io"
 	"github.com/ygo-skc/skc-deck-api/model"
-	"github.com/ygo-skc/skc-deck-api/util"
 	"github.com/ygo-skc/skc-deck-api/validation"
+	cModel "github.com/ygo-skc/skc-go/common/model"
+	cUtil "github.com/ygo-skc/skc-go/common/util"
 )
 
 func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
-	logger, ctx := util.NewRequestSetup(context.Background(), "submit new deck list")
+	logger, ctx := cUtil.NewRequestSetup(context.Background(), "submit new deck list")
 	var deckList model.DeckList
 
 	if err := json.NewDecoder(req.Body).Decode(&deckList); err != nil {
 		logger.Error("Error occurred while reading submitNewDeckListHandler request body.")
-		model.HandleServerResponse(model.APIError{Message: "Body could not be deserialized.", StatusCode: http.StatusUnprocessableEntity}, res)
+		cModel.HandleServerResponse(cModel.APIError{Message: "Body could not be deserialized.", StatusCode: http.StatusUnprocessableEntity}, res)
 		return
 	}
 
-	logger, ctx = util.AddAttribute(ctx, slog.String("deckName", deckList.Name))
+	logger, ctx = cUtil.AddAttribute(ctx, slog.String("deckName", deckList.Name))
 	logger.Info(fmt.Sprintf("Client attempting to submit new deck with list contents (in base64) {%s}", deckList.ContentB64))
 
 	// object validation
@@ -59,6 +60,6 @@ func submitNewDeckListHandler(res http.ResponseWriter, req *http.Request) {
 	if err := skcDeckAPIDBInterface.InsertDeckList(ctx, deckList); err != nil {
 		err.HandleServerResponse(res)
 	} else {
-		json.NewEncoder(res).Encode(model.Success{Message: "Successfully inserted new deck list: " + deckList.Name})
+		json.NewEncoder(res).Encode(cModel.Success{Message: "Successfully inserted new deck list: " + deckList.Name})
 	}
 }
