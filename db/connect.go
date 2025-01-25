@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/ygo-skc/skc-deck-api/util"
+	cUtil "github.com/ygo-skc/skc-go/common/util"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.mongodb.org/mongo-driver/v2/mongo/readconcern"
@@ -20,7 +20,7 @@ const (
 // connects to Deck API database
 func EstablishSKCDeckAPIDBConn() {
 	certificateKeyFilePath := "./certs/skc-deck-api-db.pem"
-	uri := fmt.Sprintf("%s/?tlsCertificateKeyFile=%s", util.EnvMap["DB_HOST"], certificateKeyFilePath)
+	uri := fmt.Sprintf("%s/?tlsCertificateKeyFile=%s", cUtil.EnvMap["DB_HOST"], certificateKeyFilePath)
 
 	credential := options.Credential{
 		AuthMechanism: "MONGODB-X509",

@@ -9,7 +9,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/joho/godotenv v1.5.1
 	github.com/rs/cors v1.11.1
-	github.com/ygo-skc/skc-go/common v0.0.0-20250124232630-75bf5bebadba
+	github.com/ygo-skc/skc-go/common v0.0.0-20250125014508-6b36cc993f58
 	go.mongodb.org/mongo-driver/v2 v2.0.0
 )
 

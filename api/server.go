@@ -14,8 +14,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/ygo-skc/skc-deck-api/db"
-	"github.com/ygo-skc/skc-deck-api/util"
 	cModel "github.com/ygo-skc/skc-go/common/model"
+	cUtil "github.com/ygo-skc/skc-go/common/util"
 )
 
 const (
@@ -82,7 +82,7 @@ func commonResponseMiddleware(next http.Handler) http.Handler {
 // Configures routes and their middle wares
 // This method should be called before the environment is set up as the API Key will be set according to the value found in environment
 func RunHttpServer() {
-	configureEnv()
+	serverAPIKey = cUtil.EnvMap["API_KEY"] // configure API Key
 	router := mux.NewRouter()
 
 	// configure non-admin routes
@@ -133,8 +133,4 @@ func serveTLS(router *mux.Router, corsOpts *cors.Cors) {
 			log.Fatalf("There was an error starting api server: %s", err)
 		}
 	}
-}
-
-func configureEnv() {
-	serverAPIKey = util.EnvMap["API_KEY"] // configure API Key
 }
