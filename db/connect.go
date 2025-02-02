@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	minPoolSize = 20
 	maxPoolSize = 30
 )
 
